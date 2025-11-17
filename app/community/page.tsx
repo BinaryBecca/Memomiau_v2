@@ -1,0 +1,136 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { useAuth } from "@/hooks/useAuth"
+import { useCommunityDecks } from "@/hooks/useCommunityDecks"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Search, Download, Wand2 } from "lucide-react"
+import Link from "next/link"
+
+export default function CommunityPage() {
+  const { user, profile } = useAuth()
+  const { decks, loading, fetchPublicDecks, addDeckToCollection } = useCommunityDecks()
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isAddingDeck, setIsAddingDeck] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetchPublicDecks()
+  }, [fetchPublicDecks])
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+    fetchPublicDecks(query)
+  }
+
+  const handleAddDeck = async (deckId: string) => {
+    if (!user?.id) return
+
+    setIsAddingDeck(deckId)
+    try {
+      await addDeckToCollection(user.id, deckId)
+      // Show success message (could be improved with toast)
+      alert("Deck zu deiner Sammlung hinzugefügt!")
+    } catch (error) {
+      console.error("Error adding deck:", error)
+      alert("Fehler beim Hinzufügen des Decks")
+    } finally {
+      setIsAddingDeck(null)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 dark:from-slate-950 dark:to-slate-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Community Decks</h1>
+          <p className="text-gray-600 dark:text-gray-400">Entdecke und lerne von öffentlichen Decks der Community</p>
+        </div>
+
+        {/* Search */}
+        <div className="mb-8 flex space-x-2">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+            <Input
+              placeholder="Decks suchen..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          {user && (
+            <Button variant="outline" asChild>
+              <Link href="/dashboard/deck/create">
+                <Wand2 className="w-4 h-4 mr-2" />
+                Mit KI erstellen
+              </Link>
+            </Button>
+          )}
+        </div>
+
+        {/* Decks Grid */}
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin text-4xl mb-4">🐱</div>
+              <p className="text-gray-600 dark:text-gray-400">Lädt Decks...</p>
+            </div>
+          </div>
+        ) : decks.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">🔍</div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Keine Decks gefunden</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Versuche eine andere Suchanfrage oder erstelle dein eigenes Deck
+            </p>
+            {user && (
+              <Button asChild>
+                <Link href="/dashboard">Zum Dashboard</Link>
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {decks.map((deck) => (
+              <Card key={deck.id} className="hover:shadow-lg transition">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <CardTitle className="text-lg">{deck.name}</CardTitle>
+                      <CardDescription className="mt-1">Von: {deck.owner.substring(0, 8)}...</CardDescription>
+                    </div>
+                    <Badge variant="secondary">Öffentlich</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {deck.description && <p className="text-sm text-gray-600 dark:text-gray-400">{deck.description}</p>}
+                  <p className="text-xs text-gray-500 dark:text-gray-500">
+                    Erstellt: {new Date(deck.created_at).toLocaleDateString("de-DE")}
+                  </p>
+
+                  {user ? (
+                    <Button
+                      onClick={() => handleAddDeck(deck.id)}
+                      disabled={isAddingDeck === deck.id}
+                      className="w-full"
+                      size="sm">
+                      <Download className="w-4 h-4 mr-2" />
+                      {isAddingDeck === deck.id ? "Wird hinzugefügt..." : "Hinzufügen"}
+                    </Button>
+                  ) : (
+                    <Button asChild className="w-full" size="sm" variant="outline">
+                      <Link href="/auth/login">Anmelden zum Hinzufügen</Link>
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

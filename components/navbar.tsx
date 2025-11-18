@@ -65,7 +65,7 @@ export const Navbar = () => {
             </button>
 
             {/* Auth Buttons / User Menu */}
-            {user ? (
+            {user && profile ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition">

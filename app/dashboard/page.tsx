@@ -5,14 +5,18 @@ import { useAuth } from "@/hooks/useAuth"
 import { useDecks } from "@/hooks/useDecks"
 import { Button } from "@/components/ui/button"
 import { CreateDeckModal } from "@/components/modals/create-deck-modal"
+import { EditDeckModal } from "@/components/modals/edit-deck-modal"
 import { DeckCard } from "@/components/cards/deck-card"
 import { Plus, Upload } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { Deck } from "@/lib/types"
 
 export default function DashboardPage() {
   const { user } = useAuth()
-  const { decks, loading, fetchDecks, createDeck, deleteDeck } = useDecks(user?.id)
+  const { decks, loading, fetchDecks, createDeck, deleteDeck, updateDeck } = useDecks(user?.id)
   const [modalOpen, setModalOpen] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null)
   const [cardCounts, setCardCounts] = useState<Record<string, number>>({})
   const supabase = createClient()
 
@@ -35,16 +39,16 @@ export default function DashboardPage() {
     }
 
     fetchDecksAndCounts()
-  }, [user?.id, fetchDecks, supabase]) // decks raus aus den Dependencies!
+  }, [user?.id])
 
-  const handleCreateDeck = async (name: string, isPublic: boolean) => {
+  const handleCreateDeck = async (name: string, description: string, isPublic: boolean) => {
     if (!user?.id) {
       console.warn("User not authenticated yet")
       return
     }
 
     try {
-      const newDeck = await createDeck(name, "", isPublic)
+      const newDeck = await createDeck(name, description, isPublic)
       if (newDeck) setCardCounts((prev) => ({ ...prev, [newDeck.id]: 0 }))
     } catch (error) {
       console.error("Error creating deck:", error)
@@ -65,6 +69,20 @@ export default function DashboardPage() {
       })
     } catch (error) {
       console.error("Error deleting deck:", error)
+    }
+  }
+
+  const handleEditDeck = (deck: Deck) => {
+    setSelectedDeck(deck)
+    setEditModalOpen(true)
+  }
+
+  const handleUpdateDeck = async (deckId: string, name: string, description: string, isPublic: boolean) => {
+    try {
+      await updateDeck(deckId, name, description, isPublic)
+      setEditModalOpen(false)
+    } catch (error) {
+      console.error("Error updating deck:", error)
     }
   }
 
@@ -113,7 +131,13 @@ export default function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {decks.map((deck) => (
-              <DeckCard key={deck.id} deck={deck} cardCount={cardCounts[deck.id] || 0} onDelete={handleDeleteDeck} />
+              <DeckCard
+                key={deck.id}
+                deck={deck}
+                cardCount={cardCounts[deck.id] || 0}
+                onDelete={handleDeleteDeck}
+                onEdit={handleEditDeck}
+              />
             ))}
           </div>
         )}
@@ -125,6 +149,14 @@ export default function DashboardPage() {
         onOpenChange={setModalOpen}
         onCreateDeck={handleCreateDeck}
         onAIGenerate={handleAIGenerate}
+      />
+
+      {/* Edit Deck Modal */}
+      <EditDeckModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        deck={selectedDeck}
+        onEditDeck={handleUpdateDeck}
       />
     </div>
   )

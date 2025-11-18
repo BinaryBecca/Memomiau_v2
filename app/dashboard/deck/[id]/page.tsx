@@ -6,7 +6,9 @@ import { useAuth } from "@/hooks/useAuth"
 import { useDecks } from "@/hooks/useDecks"
 import { useCards } from "@/hooks/useCards"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Plus, Wand2, BookOpen, Trash2 } from "lucide-react"
+import { ArrowLeft, Plus, Wand2, BookOpen, Trash2, Edit2 } from "lucide-react"
+import { EditCardModal } from "@/components/modals/edit-card-modal"
+import { Card as CardType } from "@/lib/types"
 import Link from "next/link"
 
 export default function DeckDetailPage() {
@@ -16,11 +18,13 @@ export default function DeckDetailPage() {
   const deckId = params.id as string
 
   const { decks } = useDecks(user?.id)
-  const { cards, loading: cardsLoading, fetchCards, deleteCard } = useCards(deckId)
+  const { cards, loading: cardsLoading, fetchCards, deleteCard, updateCard } = useCards(deckId)
 
   const [deck, setDeck] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [deletingCardId, setDeletingCardId] = useState<string | null>(null)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [selectedCard, setSelectedCard] = useState<CardType | null>(null)
 
   useEffect(() => {
     const currentDeck = decks.find((d) => d.id === deckId)
@@ -49,6 +53,20 @@ export default function DeckDetailPage() {
       alert("Fehler beim Löschen der Karte")
     } finally {
       setDeletingCardId(null)
+    }
+  }
+
+  const handleEditCard = (card: CardType) => {
+    setSelectedCard(card)
+    setEditModalOpen(true)
+  }
+
+  const handleUpdateCard = async (cardId: string, front: string, back: string) => {
+    try {
+      await updateCard(cardId, { front, back })
+      setEditModalOpen(false)
+    } catch (error) {
+      console.error("Error updating card:", error)
     }
   }
 
@@ -155,14 +173,23 @@ export default function DeckDetailPage() {
                       <p className="font-semibold text-gray-900 dark:text-white">{card.front}</p>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{card.back}</p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteCard(card.id)}
-                      disabled={deletingCardId === card.id}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity ml-4 h-8 w-8 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity ml-4 flex gap-1 flex-shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEditCard(card)}
+                        className="h-8 w-8 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteCard(card.id)}
+                        disabled={deletingCardId === card.id}
+                        className="h-8 w-8 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -170,6 +197,14 @@ export default function DeckDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Edit Card Modal */}
+      <EditCardModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        card={selectedCard}
+        onEditCard={handleUpdateCard}
+      />
     </div>
   )
 }

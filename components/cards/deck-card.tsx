@@ -5,16 +5,17 @@ import { Deck } from "@/lib/types"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Trash2 } from "lucide-react"
+import { Trash2, Edit2 } from "lucide-react"
 import Link from "next/link"
 
 interface DeckCardProps {
   deck: Deck
   cardCount?: number
   onDelete?: (deckId: string) => Promise<void>
+  onEdit?: (deck: Deck) => void
 }
 
-export const DeckCard = ({ deck, cardCount = 0, onDelete }: DeckCardProps) => {
+export const DeckCard = ({ deck, cardCount = 0, onDelete, onEdit }: DeckCardProps) => {
   const [isDeleting, setIsDeleting] = useState(false)
 
   const handleDelete = async (e: React.MouseEvent) => {
@@ -38,6 +39,12 @@ export const DeckCard = ({ deck, cardCount = 0, onDelete }: DeckCardProps) => {
     }
   }
 
+  const handleEdit = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    onEdit?.(deck)
+  }
+
   return (
     <Link href={`/dashboard/deck/${deck.id}`}>
       <Card className="hover:shadow-lg transition cursor-pointer h-full group">
@@ -53,16 +60,27 @@ export const DeckCard = ({ deck, cardCount = 0, onDelete }: DeckCardProps) => {
                   Öffentlich
                 </Badge>
               )}
-              {onDelete && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              )}
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                {onEdit && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleEdit}
+                    className="h-8 w-8 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                    <Edit2 className="w-4 h-4" />
+                  </Button>
+                )}
+                {onDelete && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="h-8 w-8 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </CardHeader>

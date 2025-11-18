@@ -74,6 +74,46 @@ export const useDecks = (userId: string | undefined) => {
     [userId, supabase]
   )
 
+  const updateDeck = useCallback(
+    async (deckId: string, name: string, description: string, isPublic: boolean) => {
+      if (!userId) throw new Error("User not authenticated")
+
+      try {
+        const { data, error } = await supabase
+          .from("decks")
+          .update({
+            name,
+            description,
+            is_public: isPublic,
+          })
+          .eq("id", deckId)
+          .eq("owner", userId)
+          .select()
+          .single()
+
+        if (error) throw error
+
+        setDecks((prev) =>
+          prev.map((deck) =>
+            deck.id === deckId
+              ? {
+                  ...deck,
+                  name: data.name,
+                  description: data.description,
+                  is_public: data.is_public ?? false,
+                }
+              : deck
+          )
+        )
+        return data
+      } catch (error) {
+        console.error("Error updating deck:", error)
+        throw error
+      }
+    },
+    [userId, supabase]
+  )
+
   useEffect(() => {
     fetchDecks()
   }, [userId, fetchDecks])
@@ -84,5 +124,6 @@ export const useDecks = (userId: string | undefined) => {
     fetchDecks,
     createDeck,
     deleteDeck,
+    updateDeck,
   }
 }

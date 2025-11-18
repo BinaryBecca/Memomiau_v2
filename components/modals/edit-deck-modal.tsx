@@ -1,69 +1,63 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { X } from "lucide-react"
+import { Deck } from "@/lib/types"
 
-interface CreateDeckModalProps {
+interface EditDeckModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onCreateDeck: (name: string, description: string, isPublic: boolean) => Promise<void>
-  onAIGenerate?: (name: string) => void
+  deck: Deck | null
+  onEditDeck: (deckId: string, name: string, description: string, isPublic: boolean) => Promise<void>
   isLoading?: boolean
 }
 
-export const CreateDeckModal = ({
-  open,
-  onOpenChange,
-  onCreateDeck,
-  onAIGenerate,
-  isLoading = false,
-}: CreateDeckModalProps) => {
+export const EditDeckModal = ({ open, onOpenChange, deck, onEditDeck, isLoading = false }: EditDeckModalProps) => {
   const [deckName, setDeckName] = useState("")
   const [description, setDescription] = useState("")
   const [isPublic, setIsPublic] = useState(false)
   const [error, setError] = useState("")
+
+  useEffect(() => {
+    if (deck && open) {
+      setDeckName(deck.name)
+      setDescription(deck.description || "")
+      setIsPublic(deck.is_public || false)
+      setError("")
+    }
+  }, [deck, open])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
     if (!deckName.trim()) {
-      setError("Deck name is required")
+      setError("Deckname ist erforderlich")
       return
     }
+
+    if (!deck) return
 
     try {
-      await onCreateDeck(deckName, description, isPublic)
-      setDeckName("")
-      setDescription("")
-      setIsPublic(false)
+      await onEditDeck(deck.id, deckName, description, isPublic)
       onOpenChange(false)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create deck")
+      setError(err instanceof Error ? err.message : "Fehler beim Bearbeiten des Decks")
     }
   }
 
-  const handleAIGenerate = () => {
-    if (!deckName.trim()) {
-      setError("Deck name is required")
-      return
-    }
-
-    onAIGenerate?.(deckName)
-  }
-
-  if (!open) return null
+  if (!open || !deck) return null
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-white">
+      <Card className="w-full max-w-md bg-white dark:bg-slate-900">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <div>
-            <CardTitle>Neues Deck</CardTitle>
-            <CardDescription>Erstelle ein neues Deck zum Lernen</CardDescription>
+            <CardTitle>Deck bearbeiten</CardTitle>
+            <CardDescription>Passe dein Deck an</CardDescription>
           </div>
           <button
             onClick={() => onOpenChange(false)}
@@ -116,15 +110,15 @@ export const CreateDeckModal = ({
 
             <div className="flex space-x-2 pt-4">
               <Button type="submit" disabled={isLoading || !deckName.trim()} className="flex-1">
-                {isLoading ? "Wird erstellt..." : "Neues Deck erstellen"}
+                {isLoading ? "Wird aktualisiert..." : "Speichern"}
               </Button>
               <Button
                 type="button"
                 variant="outline"
-                disabled={isLoading || !deckName.trim()}
-                onClick={handleAIGenerate}
+                disabled={isLoading}
+                onClick={() => onOpenChange(false)}
                 className="flex-1">
-                {isLoading ? "Wird generiert..." : "Mit KI erstellen"}
+                Abbrechen
               </Button>
             </div>
           </form>

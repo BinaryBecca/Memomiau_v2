@@ -19,3 +19,44 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.cat-mode-background {
+  /* A simple cat SVG from https://www.svgrepo.com/svg/532639/cat, licensed under MIT */
+  background-image: url('data:image/svg+xml,<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path fill="rgba(128,128,128,0.1)" d="M640 896a32 32 0 0 1-32-32v-96H416v96a32 32 0 0 1-64 0v-96a96 96 0 0 1-96-96v-64a32 32 0 0 1 64 0v64a32 32 0 0 0 32 32h256a32 32 0 0 0 32-32v-64a32 32 0 0 1 64 0v64a96 96 0 0 1-96 96zM256 512a32 32 0 0 1 32-32h64a32 32 0 0 1 0 64h-64a32 32 0 0 1-32-32zm448 0a32 32 0 0 1 32-32h64a32 32 0 0 1 0 64h-64a32 32 0 0 1-32-32zM864 384a32 32 0 0 1-32-32v-64a32 32 0 0 0-32-32H704a32 32 0 0 1 0-64h96a96 96 0 0 1 96 96v64a32 32 0 0 1-32 32zm-704 0a32 32 0 0 1-32-32v-64a96 96 0 0 1 96-96h96a32 32 0 0 1 0 64H224a32 32 0 0 0-32 32v64a32 32 0 0 1-32 32zM512 128a384 384 0 0 1 384 384v192a160 160 0 0 1-160 160H288A160 160 0 0 1 128 704V512A384 384 0 0 1 512 128zm0 64a320 320 0 0 0-320 320v192a96 96 0 0 0 96 96h448a96 96 0 0 0 96-96V512A320 320 0 0 0 512 192z"/></svg>');
+  background-size: 150px 150px;
+  transition: background-image 0.5s ease-in-out;
+}
+
+.running-cat {
+  position: fixed;
+  left: -150px; /* start off-screen */
+  width: 100px;
+  height: auto;
+  animation: run-across 10s linear;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+@keyframes run-across {
+  from {
+    transform: translateX(0) scaleX(1);
+  }
+  to {
+    transform: translateX(calc(100vw + 200px)) scaleX(1);
+  }
+}
+
+.running-cat.rtl {
+    left: auto;
+    right: -150px;
+    animation: run-across-rtl 10s linear;
+}
+
+@keyframes run-across-rtl {
+  from {
+    transform: translateX(0) scaleX(-1);
+  }
+  to {
+    transform: translateX(calc(-100vw - 200px)) scaleX(-1);
+  }
+}

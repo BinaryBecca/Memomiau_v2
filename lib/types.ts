@@ -17,6 +17,9 @@ export interface Deck {
   is_public: boolean
   created_at: string
   updated_at: string
+  profiles: {
+    username: string
+  } | null
 }
 
 export interface Card {

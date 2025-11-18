@@ -13,7 +13,7 @@ export const useCommunityDecks = () => {
     async (searchQuery?: string) => {
       setLoading(true)
       try {
-        let query = supabase.from("decks").select("*").eq("is_public", true).order("created_at", { ascending: false })
+        let query = supabase.from("decks").select("*, profiles(username)").eq("is_public", true).order("created_at", { ascending: false })
 
         if (searchQuery && searchQuery.trim()) {
           query = query.ilike("name", `%${searchQuery}%`)

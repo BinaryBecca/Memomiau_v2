@@ -2,11 +2,12 @@
 
 import { useAuth } from "@/hooks/useAuth"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BookOpen, Users, Trophy, Zap } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
+import Image from "next/image"
 
 export default function LandingPage() {
   const { user, loading } = useAuth()
@@ -25,7 +26,7 @@ export default function LandingPage() {
         <div className="text-center mb-16">
           <div className="flex justify-center mb-6">
             <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-5xl shadow-lg">
-              🐱
+              <Image src="/memomiau_dummy.jpg" alt="Memomiau-Logo" width={100} height={100} className="rounded-full" />
             </div>
           </div>
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">MemoMiau</h1>

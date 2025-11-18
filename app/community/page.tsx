@@ -101,7 +101,7 @@ export default function CommunityPage() {
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <CardTitle className="text-lg">{deck.name}</CardTitle>
-                        <CardDescription className="mt-1">Von: {deck.owner.substring(0, 8)}...</CardDescription>
+                        <CardDescription className="mt-1">Von: {deck.profiles?.username ?? "Unbekannt"}</CardDescription>
                       </div>
                       <Badge variant="secondary">Öffentlich</Badge>
                     </div>

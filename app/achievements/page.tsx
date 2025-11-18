@@ -1,33 +1,19 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useAuth } from "@/hooks/useAuth"
+import { useAchievements } from "@/hooks/useAchievements"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { Calendar, Flame, BookOpen } from "lucide-react"
 
 export default function AchievementsPage() {
-  const { user, loading } = useAuth()
+  const { user, loading: authLoading } = useAuth()
+  const { stats, loading: achievementsLoading } = useAchievements()
   const [activeTab, setActiveTab] = useState("daily")
-  const [stats, setStats] = useState({
-    daily: 0,
-    weekly: 0,
-    monthly: 0,
-    streak: 0,
-    totalCards: 0,
-  })
 
-  useEffect(() => {
-    // TODO: Fetch achievements from Supabase
-    setStats({
-      daily: 12,
-      weekly: 65,
-      monthly: 234,
-      streak: 7,
-      totalCards: 1250,
-    })
-  }, [user])
+  const loading = authLoading || achievementsLoading
 
   if (loading) {
     return (
@@ -92,7 +78,7 @@ export default function AchievementsPage() {
               <Calendar className="w-4 h-4 text-purple-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">24</div>
+              <div className="text-2xl font-bold">{stats.learningDaysThisMonth}</div>
               <p className="text-xs text-gray-600 dark:text-gray-400">In diesem Monat</p>
             </CardContent>
           </Card>

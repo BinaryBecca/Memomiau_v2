@@ -75,7 +75,7 @@ export const Navbar = () => {
                     </Avatar>
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="bg-white">
                   <DropdownMenuItem asChild>
                     <Link href="/dashboard/account">Account</Link>
                   </DropdownMenuItem>

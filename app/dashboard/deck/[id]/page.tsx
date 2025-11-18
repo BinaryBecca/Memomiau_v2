@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { useDecks } from "@/hooks/useDecks"
 import { useCards } from "@/hooks/useCards"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Plus, Wand2, BookOpen } from "lucide-react"
+import { ArrowLeft, Plus, Wand2, BookOpen, Trash2 } from "lucide-react"
 import Link from "next/link"
 
 export default function DeckDetailPage() {
@@ -16,10 +16,11 @@ export default function DeckDetailPage() {
   const deckId = params.id as string
 
   const { decks } = useDecks(user?.id)
-  const { cards, loading: cardsLoading, fetchCards } = useCards(deckId)
+  const { cards, loading: cardsLoading, fetchCards, deleteCard } = useCards(deckId)
 
   const [deck, setDeck] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [deletingCardId, setDeletingCardId] = useState<string | null>(null)
 
   useEffect(() => {
     const currentDeck = decks.find((d) => d.id === deckId)
@@ -34,6 +35,22 @@ export default function DeckDetailPage() {
       fetchCards()
     }
   }, [deckId, fetchCards])
+
+  const handleDeleteCard = async (cardId: string) => {
+    if (!confirm("Möchtest du diese Karte wirklich löschen?")) {
+      return
+    }
+
+    try {
+      setDeletingCardId(cardId)
+      await deleteCard(cardId)
+    } catch (error) {
+      console.error("Error deleting card:", error)
+      alert("Fehler beim Löschen der Karte")
+    } finally {
+      setDeletingCardId(null)
+    }
+  }
 
   if (loading) {
     return (
@@ -133,9 +150,19 @@ export default function DeckDetailPage() {
                 {cards.map((card) => (
                   <div
                     key={card.id}
-                    className="bg-white dark:bg-slate-900 rounded-lg p-4 border dark:border-slate-800 hover:shadow-md transition">
-                    <p className="font-semibold text-gray-900 dark:text-white">{card.front}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{card.back}</p>
+                    className="bg-white dark:bg-slate-900 rounded-lg p-4 border dark:border-slate-800 hover:shadow-md transition flex justify-between items-start group">
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900 dark:text-white">{card.front}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{card.back}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteCard(card.id)}
+                      disabled={deletingCardId === card.id}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity ml-4 h-8 w-8 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex-shrink-0">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 ))}
               </div>

@@ -11,7 +11,7 @@ import { createClient } from "@/lib/supabase/client"
 
 export default function DashboardPage() {
   const { user } = useAuth()
-  const { decks, loading, fetchDecks, createDeck } = useDecks(user?.id)
+  const { decks, loading, fetchDecks, createDeck, deleteDeck } = useDecks(user?.id)
   const [modalOpen, setModalOpen] = useState(false)
   const [cardCounts, setCardCounts] = useState<Record<string, number>>({})
   const supabase = createClient()
@@ -53,6 +53,19 @@ export default function DashboardPage() {
 
   const handleAIGenerate = (name: string) => {
     console.log("AI generate for:", name)
+  }
+
+  const handleDeleteDeck = async (deckId: string) => {
+    try {
+      await deleteDeck(deckId)
+      setCardCounts((prev) => {
+        const newCounts = { ...prev }
+        delete newCounts[deckId]
+        return newCounts
+      })
+    } catch (error) {
+      console.error("Error deleting deck:", error)
+    }
   }
 
   return (
@@ -100,7 +113,7 @@ export default function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {decks.map((deck) => (
-              <DeckCard key={deck.id} deck={deck} cardCount={cardCounts[deck.id] || 0} />
+              <DeckCard key={deck.id} deck={deck} cardCount={cardCounts[deck.id] || 0} onDelete={handleDeleteDeck} />
             ))}
           </div>
         )}

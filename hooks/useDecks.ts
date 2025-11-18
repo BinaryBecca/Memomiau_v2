@@ -58,6 +58,22 @@ export const useDecks = (userId: string | undefined) => {
     [userId, supabase]
   )
 
+  const deleteDeck = useCallback(
+    async (deckId: string) => {
+      try {
+        const { error } = await supabase.from("decks").delete().eq("id", deckId).eq("owner", userId)
+
+        if (error) throw error
+
+        setDecks((prev) => prev.filter((deck) => deck.id !== deckId))
+      } catch (error) {
+        console.error("Error deleting deck:", error)
+        throw error
+      }
+    },
+    [userId, supabase]
+  )
+
   useEffect(() => {
     fetchDecks()
   }, [userId, fetchDecks])
@@ -67,5 +83,6 @@ export const useDecks = (userId: string | undefined) => {
     loading,
     fetchDecks,
     createDeck,
+    deleteDeck,
   }
 }

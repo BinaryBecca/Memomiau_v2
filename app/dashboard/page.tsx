@@ -22,11 +22,9 @@ export default function DashboardPage() {
 
   // Decks und Kartenanzahlen laden
   useEffect(() => {
-    if (!user?.id) return
+    if (!user?.id || decks.length === 0) return
 
-    const fetchDecksAndCounts = async () => {
-      await fetchDecks()
-
+    const fetchCounts = async () => {
       const counts: Record<string, number> = {}
 
       for (const deck of decks) {
@@ -38,8 +36,8 @@ export default function DashboardPage() {
       setCardCounts(counts)
     }
 
-    fetchDecksAndCounts()
-  }, [user?.id])
+    fetchCounts()
+  }, [user?.id, decks, supabase])
 
   const handleCreateDeck = async (name: string, description: string, isPublic: boolean) => {
     if (!user?.id) {

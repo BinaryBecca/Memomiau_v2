@@ -95,38 +95,43 @@ export default function CommunityPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {decks.map((deck) => (
-              <Card key={deck.id} className="hover:shadow-lg transition">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg">{deck.name}</CardTitle>
-                      <CardDescription className="mt-1">Von: {deck.owner.substring(0, 8)}...</CardDescription>
+              <Link key={deck.id} href={`/community/${deck.id}`}>
+                <Card className="hover:shadow-lg transition cursor-pointer h-full">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg">{deck.name}</CardTitle>
+                        <CardDescription className="mt-1">Von: {deck.owner.substring(0, 8)}...</CardDescription>
+                      </div>
+                      <Badge variant="secondary">Öffentlich</Badge>
                     </div>
-                    <Badge variant="secondary">Öffentlich</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {deck.description && <p className="text-sm text-gray-600 dark:text-gray-400">{deck.description}</p>}
-                  <p className="text-xs text-gray-500 dark:text-gray-500">
-                    Erstellt: {new Date(deck.created_at).toLocaleDateString("de-DE")}
-                  </p>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {deck.description && <p className="text-sm text-gray-600 dark:text-gray-400">{deck.description}</p>}
+                    <p className="text-xs text-gray-500 dark:text-gray-500">
+                      Erstellt: {new Date(deck.created_at).toLocaleDateString("de-DE")}
+                    </p>
 
-                  {user ? (
-                    <Button
-                      onClick={() => handleAddDeck(deck.id)}
-                      disabled={isAddingDeck === deck.id}
-                      className="w-full"
-                      size="sm">
-                      <Download className="w-4 h-4 mr-2" />
-                      {isAddingDeck === deck.id ? "Wird hinzugefügt..." : "Hinzufügen"}
-                    </Button>
-                  ) : (
-                    <Button asChild className="w-full" size="sm" variant="outline">
-                      <Link href="/auth/login">Anmelden zum Hinzufügen</Link>
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
+                    {user ? (
+                      <Button
+                        onClick={(e) => {
+                          e.preventDefault()
+                          handleAddDeck(deck.id)
+                        }}
+                        disabled={isAddingDeck === deck.id}
+                        className="w-full"
+                        size="sm">
+                        <Download className="w-4 h-4 mr-2" />
+                        {isAddingDeck === deck.id ? "Wird hinzugefügt..." : "Hinzufügen"}
+                      </Button>
+                    ) : (
+                      <Button asChild className="w-full" size="sm" variant="outline">
+                        <Link href="/auth/login">Anmelden zum Hinzufügen</Link>
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         )}

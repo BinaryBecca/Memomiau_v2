@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
+import Image from "next/image"
 
 export const Navbar = () => {
   const { user, profile, signOut } = useAuth()
@@ -24,12 +25,12 @@ export const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold">
-              🐱
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center">
+              <Image src="/memomiau_dummy.jpg" alt="Memomiau-Logo" width={100} height={100} className="rounded-full" />
             </div>
             <span className="font-bold text-lg hidden sm:inline">MemoMiau</span>
-          </Link>
+          </div>
 
           {/* Navigation Links */}
           {user && (

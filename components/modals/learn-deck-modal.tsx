@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { X } from "lucide-react"
 
 interface LearnDeckModalProps {
@@ -40,7 +39,7 @@ export const LearnDeckModal = ({ open, onOpenChange, deckId, cardCount }: LearnD
       params.set("random", "true")
     }
 
-    statuses.forEach(status => {
+    statuses.forEach((status) => {
       params.append("status", status)
     })
 
@@ -73,7 +72,9 @@ export const LearnDeckModal = ({ open, onOpenChange, deckId, cardCount }: LearnD
                 checked={isRandom}
                 onCheckedChange={(checked) => setIsRandom(Boolean(checked))}
               />
-              <Label htmlFor="random-cards" className="font-normal">Zufällige Karten auswählen</Label>
+              <Label htmlFor="random-cards" className="font-normal">
+                Zufällige Karten auswählen
+              </Label>
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -81,7 +82,9 @@ export const LearnDeckModal = ({ open, onOpenChange, deckId, cardCount }: LearnD
                 checked={repeatAll}
                 onCheckedChange={(checked) => setRepeatAll(Boolean(checked))}
               />
-              <Label htmlFor="repeat-all" className="font-normal">Alle Karten wiederholen</Label>
+              <Label htmlFor="repeat-all" className="font-normal">
+                Alle Karten wiederholen
+              </Label>
             </div>
             {!repeatAll && (
               <>
@@ -93,15 +96,15 @@ export const LearnDeckModal = ({ open, onOpenChange, deckId, cardCount }: LearnD
                     placeholder="Anzahl"
                     value={cardAmount}
                     onChange={(e) => {
-                      const value = e.target.value;
+                      const value = e.target.value
                       if (value === "") {
-                        setCardAmount("");
+                        setCardAmount("")
                       } else {
-                        const num = parseInt(value, 10);
+                        const num = parseInt(value, 10)
                         if (!isNaN(num) && num > 0) {
-                          setCardAmount(String(Math.min(num, cardCount)));
+                          setCardAmount(String(Math.min(num, cardCount)))
                         } else {
-                          setCardAmount("");
+                          setCardAmount("")
                         }
                       }
                     }}
@@ -119,18 +122,16 @@ export const LearnDeckModal = ({ open, onOpenChange, deckId, cardCount }: LearnD
             <Label>Nur bestimmte Karten wiederholen</Label>
             <div className="flex flex-col space-y-2">
               <div className="flex items-center space-x-2">
-                <Checkbox id="status-red" onCheckedChange={(checked) => {
-                  if (checked) setStatuses(s => [...s, 'red']);
-                  else setStatuses(s => s.filter(st => st !== 'red'));
-                }} />
-                <Label htmlFor="status-red" className="font-normal text-red-600">Nochmal (Rot)</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="status-yellow" onCheckedChange={(checked) => {
-                  if (checked) setStatuses(s => [...s, 'yellow']);
-                  else setStatuses(s => s.filter(st => st !== 'yellow'));
-                }} />
-                <Label htmlFor="status-yellow" className="font-normal text-yellow-600">Wiederholen (Gelb)</Label>
+                <Checkbox
+                  id="status-red"
+                  onCheckedChange={(checked) => {
+                    if (checked) setStatuses((s) => [...s, "red"])
+                    else setStatuses((s) => s.filter((st) => st !== "red"))
+                  }}
+                />
+                <Label htmlFor="status-red" className="font-normal text-red-600">
+                  Nochmal (Rot)
+                </Label>
               </div>
             </div>
           </div>
@@ -143,7 +144,20 @@ export const LearnDeckModal = ({ open, onOpenChange, deckId, cardCount }: LearnD
               type="number"
               placeholder="z.B. 15"
               value={timer}
-              onChange={(e) => setTimer(e.target.value)}
+              min="0"
+              onChange={(e) => {
+                const value = e.target.value
+                if (value === "") {
+                  setTimer("")
+                } else {
+                  const num = parseInt(value, 10)
+                  if (!isNaN(num) && num >= 0) {
+                    setTimer(String(num))
+                  } else {
+                    setTimer("")
+                  }
+                }
+              }}
             />
           </div>
 

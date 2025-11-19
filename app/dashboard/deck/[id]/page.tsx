@@ -5,12 +5,14 @@ import { useParams, useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
 import { useDecks } from "@/hooks/useDecks"
 import { useCards } from "@/hooks/useCards"
+import { useCommunityDecks } from "@/hooks/useCommunityDecks"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Plus, Wand2, BookOpen, Trash2, Edit2 } from "lucide-react"
 import { EditCardModal } from "@/components/modals/edit-card-modal"
 import { LearnDeckModal } from "@/components/modals/learn-deck-modal"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card as CardType } from "@/lib/types"
+import { Deck } from "@/lib/types"
 import Link from "next/link"
 
 export default function DeckDetailPage() {
@@ -19,10 +21,17 @@ export default function DeckDetailPage() {
   const { user } = useAuth()
   const deckId = params.id as string
 
+  // Prüfe auf random Query-Parameter
+  let isRandom = false
+  if (typeof window !== "undefined") {
+    const searchParams = new URLSearchParams(window.location.search)
+    isRandom = searchParams.get("random") === "true"
+  }
+
   const { decks } = useDecks(user?.id)
   const { cards, loading: cardsLoading, fetchCards, deleteCard, updateCard } = useCards(deckId, user?.id)
 
-  const [deck, setDeck] = useState<any>(null)
+  const [deck, setDeck] = useState<Deck | null>(null)
   const [loading, setLoading] = useState(true)
   const [deletingCardId, setDeletingCardId] = useState<string | null>(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
@@ -44,6 +53,9 @@ export default function DeckDetailPage() {
     }
   }, [deckId, fetchCards])
 
+  // Community-Decks synchronisieren nach Kartenänderung
+  const { fetchPublicDecks } = useCommunityDecks();
+
   const handleDeleteCard = async (cardId: string) => {
     if (!confirm("Möchtest du diese Karte wirklich löschen?")) {
       return
@@ -52,6 +64,10 @@ export default function DeckDetailPage() {
     try {
       setDeletingCardId(cardId)
       await deleteCard(cardId)
+      // Falls Deck öffentlich, Community aktualisieren
+      if (deck?.is_public) {
+        fetchPublicDecks()
+      }
     } catch (error) {
       console.error("Error deleting card:", error)
       alert("Fehler beim Löschen der Karte")
@@ -69,34 +85,41 @@ export default function DeckDetailPage() {
     try {
       await updateCard(cardId, { front, back })
       setEditModalOpen(false)
+      // Falls Deck öffentlich, Community aktualisieren
+      if (deck?.is_public) {
+        fetchPublicDecks()
+      }
     } catch (error) {
       console.error("Error updating card:", error)
     }
   }
 
   const sortedCards = useMemo(() => {
-    let sortableCards = [...cards];
+    const sortableCards = [...cards]
     if (sortOrder === "red") {
       sortableCards.sort((a, b) => {
-        if (a.learning_status === "red" && b.learning_status !== "red") return -1;
-        if (a.learning_status !== "red" && b.learning_status === "red") return 1;
-        return 0;
-      });
-    } else if (sortOrder === "yellow") {
-      sortableCards.sort((a, b) => {
-        if (a.learning_status === "yellow" && b.learning_status !== "yellow") return -1;
-        if (a.learning_status !== "yellow" && b.learning_status === "yellow") return 1;
-        return 0;
-      });
+        if (a.learning_status === "red" && b.learning_status !== "red") return -1
+        if (a.learning_status !== "red" && b.learning_status === "red") return 1
+        return 0
+      })
     } else if (sortOrder === "green") {
       sortableCards.sort((a, b) => {
-        if (a.learning_status === "green" && b.learning_status !== "green") return -1;
-        if (a.learning_status !== "green" && b.learning_status === "green") return 1;
-        return 0;
-      });
+        if (a.learning_status === "green" && b.learning_status !== "green") return -1
+        if (a.learning_status !== "green" && b.learning_status === "green") return 1
+        return 0
+      })
+    } else if (sortOrder === "az") {
+      sortableCards.sort((a, b) => a.front.localeCompare(b.front))
     }
-    return sortableCards;
-  }, [cards, sortOrder]);
+    // Karten mischen, wenn random=true
+    if (isRandom) {
+      for (let i = sortableCards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[sortableCards[i], sortableCards[j]] = [sortableCards[j], sortableCards[i]]
+      }
+    }
+    return sortableCards
+  }, [cards, sortOrder, isRandom])
 
   if (loading) {
     return (
@@ -125,7 +148,7 @@ export default function DeckDetailPage() {
         {/* Header */}
         <div className="flex items-center space-x-4 mb-8">
           <button
-            onClick={() => router.back()}
+            onClick={() => router.push("/dashboard")}
             className="p-2 hover:bg-gray-200 dark:hover:bg-slate-800 rounded-lg transition">
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -146,20 +169,23 @@ export default function DeckDetailPage() {
             <div className="text-6xl mb-4">📝</div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Dieses Deck hat noch keine Karten</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">Beginne mit dem Hinzufügen von Flashcards</p>
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 justify-center">
-              <Button asChild>
-                <Link href={`/dashboard/deck/${deckId}/cards/new`}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Karten hinzufügen
-                </Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href={`/dashboard/deck/${deckId}/ai-generate`}>
-                  <Wand2 className="w-4 h-4 mr-2" />
-                  Mit KI generieren
-                </Link>
-              </Button>
-            </div>
+            {/* Nur Besitzer kann Karten hinzufügen */}
+            {user?.id === deck.owner && (
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 justify-center">
+                <Button asChild>
+                  <Link href={`/dashboard/deck/${deckId}/cards/new`}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Karten hinzufügen
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href={`/dashboard/deck/${deckId}/ai-generate`}>
+                    <Wand2 className="w-4 h-4 mr-2" />
+                    Mit KI generieren
+                  </Link>
+                </Button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
@@ -169,30 +195,35 @@ export default function DeckDetailPage() {
                 <BookOpen className="w-4 h-4 mr-2" />
                 Karten lernen
               </Button>
-              <Button asChild variant="outline" className="flex-1">
-                <Link href={`/dashboard/deck/${deckId}/cards/new`}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Karten hinzufügen
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="flex-1">
-                <Link href={`/dashboard/deck/${deckId}/ai-generate`}>
-                  <Wand2 className="w-4 h-4 mr-2" />
-                  Mit KI generieren
-                </Link>
-              </Button>
+              {/* Nur Besitzer kann Karten hinzufügen */}
+              {user?.id === deck.owner && (
+                <>
+                  <Button asChild variant="outline" className="flex-1">
+                    <Link href={`/dashboard/deck/${deckId}/cards/new`}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Karten hinzufügen
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="flex-1">
+                    <Link href={`/dashboard/deck/${deckId}/ai-generate`}>
+                      <Wand2 className="w-4 h-4 mr-2" />
+                      Mit KI generieren
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Sort by Learning Status */}
             <div className="flex justify-end mb-4">
               <Select onValueChange={setSortOrder} defaultValue="default">
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Sortieren nach Lernstatus" />
+                  <SelectValue placeholder="Sortieren" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="default">Standard</SelectItem>
+                  <SelectItem value="default">Alle Karten</SelectItem>
+                  <SelectItem value="az">A-Z</SelectItem>
                   <SelectItem value="red">Nochmal (Rot)</SelectItem>
-                  <SelectItem value="yellow">Wiederholen (Gelb)</SelectItem>
                   <SelectItem value="green">Geschafft (Grün)</SelectItem>
                 </SelectContent>
               </Select>
@@ -210,31 +241,36 @@ export default function DeckDetailPage() {
                   <div
                     key={card.id}
                     className={`bg-white dark:bg-slate-900 rounded-lg p-4 border dark:border-slate-800 hover:shadow-md transition flex justify-between items-start group ${
-                      card.learning_status === 'red' ? 'border-red-500' :
-                      card.learning_status === 'yellow' ? 'border-yellow-500' :
-                      card.learning_status === 'green' ? 'border-green-500' : ''
+                      card.learning_status === "red"
+                        ? "border-red-500"
+                        : card.learning_status === "green"
+                        ? "border-green-500"
+                        : ""
                     }`}>
                     <div className="flex-1">
                       <p className="font-semibold text-gray-900 dark:text-white">{card.front}</p>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{card.back}</p>
                     </div>
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity ml-4 flex gap-1 flex-shrink-0">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEditCard(card)}
-                        className="h-8 w-8 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteCard(card.id)}
-                        disabled={deletingCardId === card.id}
-                        className="h-8 w-8 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    {/* Nur Besitzer kann Karten bearbeiten/löschen */}
+                    {user?.id === deck.owner && (
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity ml-4 flex gap-1 flex-shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditCard(card)}
+                          className="h-8 w-8 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteCard(card.id)}
+                          disabled={deletingCardId === card.id}
+                          className="h-8 w-8 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -252,12 +288,7 @@ export default function DeckDetailPage() {
       />
 
       {/* Learn Deck Modal */}
-      <LearnDeckModal
-        open={learnModalOpen}
-        onOpenChange={setLearnModalOpen}
-        deckId={deckId}
-        cardCount={cards.length}
-      />
+      <LearnDeckModal open={learnModalOpen} onOpenChange={setLearnModalOpen} deckId={deckId} cardCount={cards.length} />
     </div>
   )
 }

@@ -9,6 +9,31 @@ export const useCommunityDecks = () => {
   const [loading, setLoading] = useState(false)
   const supabase = createClient()
 
+  // Supabase Realtime Listener für öffentliche Decks
+  // Aktualisiert die Decks automatisch bei Änderungen
+  import { useEffect } from "react"
+  useEffect(() => {
+    const channel = supabase
+      .channel('public-decks')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // insert, update, delete
+          schema: 'public',
+          table: 'decks',
+          filter: 'is_public=eq.true'
+        },
+        (payload) => {
+          fetchPublicDecks()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [fetchPublicDecks, supabase])
+
   const fetchPublicDecks = useCallback(
     async (searchQuery?: string) => {
       setLoading(true)

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
 import { useDecks } from "@/hooks/useDecks"
@@ -8,6 +8,8 @@ import { useCards } from "@/hooks/useCards"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Plus, Wand2, BookOpen, Trash2, Edit2 } from "lucide-react"
 import { EditCardModal } from "@/components/modals/edit-card-modal"
+import { LearnDeckModal } from "@/components/modals/learn-deck-modal"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card as CardType } from "@/lib/types"
 import Link from "next/link"
 
@@ -18,13 +20,15 @@ export default function DeckDetailPage() {
   const deckId = params.id as string
 
   const { decks } = useDecks(user?.id)
-  const { cards, loading: cardsLoading, fetchCards, deleteCard, updateCard } = useCards(deckId)
+  const { cards, loading: cardsLoading, fetchCards, deleteCard, updateCard } = useCards(deckId, user?.id)
 
   const [deck, setDeck] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [deletingCardId, setDeletingCardId] = useState<string | null>(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [selectedCard, setSelectedCard] = useState<CardType | null>(null)
+  const [learnModalOpen, setLearnModalOpen] = useState(false)
+  const [sortOrder, setSortOrder] = useState<string>("default")
 
   useEffect(() => {
     const currentDeck = decks.find((d) => d.id === deckId)
@@ -69,6 +73,30 @@ export default function DeckDetailPage() {
       console.error("Error updating card:", error)
     }
   }
+
+  const sortedCards = useMemo(() => {
+    let sortableCards = [...cards];
+    if (sortOrder === "red") {
+      sortableCards.sort((a, b) => {
+        if (a.learning_status === "red" && b.learning_status !== "red") return -1;
+        if (a.learning_status !== "red" && b.learning_status === "red") return 1;
+        return 0;
+      });
+    } else if (sortOrder === "yellow") {
+      sortableCards.sort((a, b) => {
+        if (a.learning_status === "yellow" && b.learning_status !== "yellow") return -1;
+        if (a.learning_status !== "yellow" && b.learning_status === "yellow") return 1;
+        return 0;
+      });
+    } else if (sortOrder === "green") {
+      sortableCards.sort((a, b) => {
+        if (a.learning_status === "green" && b.learning_status !== "green") return -1;
+        if (a.learning_status !== "green" && b.learning_status === "green") return 1;
+        return 0;
+      });
+    }
+    return sortableCards;
+  }, [cards, sortOrder]);
 
   if (loading) {
     return (
@@ -136,12 +164,10 @@ export default function DeckDetailPage() {
         ) : (
           <div className="space-y-4">
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
-              <Button asChild className="flex-1">
-                <Link href={`/dashboard/deck/${deckId}/learn`}>
-                  <BookOpen className="w-4 h-4 mr-2" />
-                  Karten lernen
-                </Link>
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
+              <Button onClick={() => setLearnModalOpen(true)} className="flex-1">
+                <BookOpen className="w-4 h-4 mr-2" />
+                Karten lernen
               </Button>
               <Button asChild variant="outline" className="flex-1">
                 <Link href={`/dashboard/deck/${deckId}/cards/new`}>
@@ -157,6 +183,21 @@ export default function DeckDetailPage() {
               </Button>
             </div>
 
+            {/* Sort by Learning Status */}
+            <div className="flex justify-end mb-4">
+              <Select onValueChange={setSortOrder} defaultValue="default">
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Sortieren nach Lernstatus" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Standard</SelectItem>
+                  <SelectItem value="red">Nochmal (Rot)</SelectItem>
+                  <SelectItem value="yellow">Wiederholen (Gelb)</SelectItem>
+                  <SelectItem value="green">Geschafft (Grün)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Cards List */}
             {cardsLoading ? (
               <div className="text-center py-8">
@@ -165,10 +206,14 @@ export default function DeckDetailPage() {
               </div>
             ) : (
               <div className="space-y-2">
-                {cards.map((card) => (
+                {sortedCards.map((card) => (
                   <div
                     key={card.id}
-                    className="bg-white dark:bg-slate-900 rounded-lg p-4 border dark:border-slate-800 hover:shadow-md transition flex justify-between items-start group">
+                    className={`bg-white dark:bg-slate-900 rounded-lg p-4 border dark:border-slate-800 hover:shadow-md transition flex justify-between items-start group ${
+                      card.learning_status === 'red' ? 'border-red-500' :
+                      card.learning_status === 'yellow' ? 'border-yellow-500' :
+                      card.learning_status === 'green' ? 'border-green-500' : ''
+                    }`}>
                     <div className="flex-1">
                       <p className="font-semibold text-gray-900 dark:text-white">{card.front}</p>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{card.back}</p>
@@ -204,6 +249,14 @@ export default function DeckDetailPage() {
         onOpenChange={setEditModalOpen}
         card={selectedCard}
         onEditCard={handleUpdateCard}
+      />
+
+      {/* Learn Deck Modal */}
+      <LearnDeckModal
+        open={learnModalOpen}
+        onOpenChange={setLearnModalOpen}
+        deckId={deckId}
+        cardCount={cards.length}
       />
     </div>
   )

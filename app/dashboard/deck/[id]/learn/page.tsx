@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useState, useEffect, useCallback } from "react"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
 import { useCards } from "@/hooks/useCards"
 import { useLearningStatus } from "@/hooks/useLearningStatus"
@@ -15,15 +15,19 @@ export default function LearnPage() {
   const router = useRouter()
   const { user } = useAuth()
   const deckId = params.id as string
+  const searchParams = useSearchParams()
 
-  const { cards, loading: cardsLoading, fetchCards } = useCards(deckId)
-  const { fetchStatuses, updateStatus } = useLearningStatus(user?.id)
+  const { cards, loading: cardsLoading, fetchCards } = useCards(deckId, user?.id)
+  const { fetchStatuses, updateStatus, getStatusByCard } = useLearningStatus(user?.id)
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [cardsToLearn, setCardsToLearn] = useState<Card[]>([])
   const [loading, setLoading] = useState(true)
   const [isUpdating, setIsUpdating] = useState(false)
   const [progress, setProgress] = useState({ green: 0, yellow: 0, red: 0 })
+
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [timerActive, setTimerActive] = useState(false);
 
   useEffect(() => {
     if (deckId) {
@@ -33,11 +37,58 @@ export default function LearnPage() {
 
   useEffect(() => {
     if (cards.length > 0) {
-      setCardsToLearn(cards)
-      setLoading(false)
-      fetchStatuses(cards.map((c) => c.id))
+      let filteredCards = cards;
+
+      // Filter by status
+      const statusesParam = searchParams.getAll("status");
+      if (statusesParam.length > 0) {
+        filteredCards = cards.filter(card => statusesParam.includes(card.learning_status || ''));
+      }
+
+      // Limit cards
+      const limitParam = searchParams.get("limit");
+      if (limitParam) {
+        const limit = parseInt(limitParam, 10);
+        if (!isNaN(limit) && limit > 0) {
+          filteredCards = filteredCards.slice(0, limit);
+        }
+      }
+
+      setCardsToLearn(filteredCards);
+      setLoading(false);
     }
-  }, [cards, fetchStatuses])
+  }, [cards, searchParams]);
+
+  useEffect(() => {
+    const timerParam = searchParams.get("timer");
+    if (timerParam) {
+      const minutes = parseInt(timerParam, 10);
+      if (!isNaN(minutes) && minutes > 0) {
+        setTimeLeft(minutes * 60);
+        setTimerActive(true);
+      }
+    }
+  }, [searchParams]);
+
+  // Timer countdown effect
+  useEffect(() => {
+    if (!timerActive || timeLeft === null || timeLeft <= 0) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setTimeLeft((prevTime) => (prevTime !== null ? prevTime - 1 : null));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timerActive, timeLeft]);
+
+  // Effect to handle timer end
+  useEffect(() => {
+    if (timeLeft === 0) {
+      router.push(`/dashboard/deck/${deckId}`);
+    }
+  }, [timeLeft, router, deckId]);
 
   const handleFeedback = async (status: "green" | "yellow" | "red") => {
     if (currentIndex >= cardsToLearn.length) return
@@ -72,6 +123,12 @@ export default function LearnPage() {
     setCurrentIndex(0)
     setProgress({ green: 0, yellow: 0, red: 0 })
   }
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   if (loading || cardsLoading) {
     return (
@@ -108,7 +165,12 @@ export default function LearnPage() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Lernen</h1>
-          <div className="w-10" />
+          {timerActive && timeLeft !== null && (
+            <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+              ⏰ {formatTime(timeLeft)}
+            </div>
+          )}
+          {!timerActive && <div className="w-10" />}
         </div>
 
         {/* Progress Bar */}

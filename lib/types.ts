@@ -30,6 +30,7 @@ export interface Card {
   image_url: string | null
   created_at: string
   updated_at: string
+  learning_status?: "green" | "yellow" | "red" | null
 }
 
 export interface CardLearningStatus {

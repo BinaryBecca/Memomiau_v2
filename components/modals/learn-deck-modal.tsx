@@ -22,16 +22,22 @@ export const LearnDeckModal = ({ open, onOpenChange, deckId, cardCount }: LearnD
   const [cardAmount, setCardAmount] = useState("10")
   const [timer, setTimer] = useState("")
   const [statuses, setStatuses] = useState<string[]>([])
+  const [isRandom, setIsRandom] = useState(false)
+  const [repeatAll, setRepeatAll] = useState(true)
 
   const handleStart = () => {
     const params = new URLSearchParams()
 
-    if (cardAmount !== "all") {
+    if (!repeatAll) {
       params.set("limit", cardAmount)
     }
 
     if (timer) {
       params.set("timer", timer)
+    }
+
+    if (isRandom) {
+      params.set("random", "true")
     }
 
     statuses.forEach(status => {
@@ -61,38 +67,51 @@ export const LearnDeckModal = ({ open, onOpenChange, deckId, cardCount }: LearnD
         <CardContent className="space-y-6">
           {/* Card Amount */}
           <div className="space-y-2">
-            <Label htmlFor="cardAmountInput">Anzahl der Karten</Label>
-            <div className="flex space-x-2">
-              <Input
-                id="cardAmountInput"
-                type="number"
-                placeholder="Anzahl"
-                value={cardAmount === "all" ? "" : cardAmount}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value === "") {
-                    setCardAmount("");
-                  } else {
-                    const num = parseInt(value, 10);
-                    if (!isNaN(num) && num > 0) {
-                      setCardAmount(String(Math.min(num, cardCount)));
-                    } else {
-                      setCardAmount("");
-                    }
-                  }
-                }}
-                min="1"
-                max={cardCount}
-                className="flex-1"
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="random-cards"
+                checked={isRandom}
+                onCheckedChange={(checked) => setIsRandom(Boolean(checked))}
               />
-              <Button
-                variant="outline"
-                onClick={() => setCardAmount("all")}
-                disabled={cardAmount === "all"}
-              >
-                Alle ({cardCount})
-              </Button>
+              <Label htmlFor="random-cards" className="font-normal">Zufällige Karten auswählen</Label>
             </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="repeat-all"
+                checked={repeatAll}
+                onCheckedChange={(checked) => setRepeatAll(Boolean(checked))}
+              />
+              <Label htmlFor="repeat-all" className="font-normal">Alle Karten wiederholen</Label>
+            </div>
+            {!repeatAll && (
+              <>
+                <Label htmlFor="cardAmountInput">Anzahl der Karten</Label>
+                <div className="flex space-x-2">
+                  <Input
+                    id="cardAmountInput"
+                    type="number"
+                    placeholder="Anzahl"
+                    value={cardAmount}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === "") {
+                        setCardAmount("");
+                      } else {
+                        const num = parseInt(value, 10);
+                        if (!isNaN(num) && num > 0) {
+                          setCardAmount(String(Math.min(num, cardCount)));
+                        } else {
+                          setCardAmount("");
+                        }
+                      }
+                    }}
+                    min="1"
+                    max={cardCount}
+                    className="flex-1"
+                  />
+                </div>
+              </>
+            )}
           </div>
 
           {/* Status Filter */}

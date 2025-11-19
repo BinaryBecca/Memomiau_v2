@@ -25,12 +25,7 @@ export default function CommunityDeckDetailPage() {
   useEffect(() => {
     const fetchDeck = async () => {
       try {
-        const { data, error } = await supabase
-          .from("decks")
-          .select("*")
-          .eq("id", deckId)
-          .eq("is_public", true)
-          .single()
+        const { data, error } = await supabase.from("decks").select("*").eq("id", deckId).eq("is_public", true).single()
 
         if (error) throw error
         setDeck(data as Deck)
@@ -139,11 +134,7 @@ export default function CommunityDeckDetailPage() {
 
         {/* Add to Collection Button */}
         {user ? (
-          <Button
-            onClick={handleAddDeck}
-            disabled={isAddingDeck}
-            className="mb-8"
-            size="lg">
+          <Button onClick={handleAddDeck} disabled={isAddingDeck} className="mb-8" size="lg">
             <Download className="w-4 h-4 mr-2" />
             {isAddingDeck ? "Wird hinzugefügt..." : "Zu meiner Sammlung hinzufügen"}
           </Button>

@@ -54,7 +54,7 @@ export default function DeckDetailPage() {
   }, [deckId, fetchCards])
 
   // Community-Decks synchronisieren nach Kartenänderung
-  const { fetchPublicDecks } = useCommunityDecks();
+  const { fetchPublicDecks } = useCommunityDecks()
 
   const handleDeleteCard = async (cardId: string) => {
     if (!confirm("Möchtest du diese Karte wirklich löschen?")) {

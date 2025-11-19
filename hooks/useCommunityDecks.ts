@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback, useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Deck } from "@/lib/types"
 
@@ -9,30 +9,7 @@ export const useCommunityDecks = () => {
   const [loading, setLoading] = useState(false)
   const supabase = createClient()
 
-  // Supabase Realtime Listener für öffentliche Decks
-  // Aktualisiert die Decks automatisch bei Änderungen
-  import { useEffect } from "react"
-  useEffect(() => {
-    const channel = supabase
-      .channel('public-decks')
-      .on(
-        'postgres_changes',
-        {
-          event: '*', // insert, update, delete
-          schema: 'public',
-          table: 'decks',
-          filter: 'is_public=eq.true'
-        },
-        (payload) => {
-          fetchPublicDecks()
-        }
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [fetchPublicDecks, supabase])
+  // ...existing code...
 
   const fetchPublicDecks = useCallback(
     async (searchQuery?: string) => {
@@ -56,6 +33,30 @@ export const useCommunityDecks = () => {
     },
     [supabase]
   )
+
+  // Supabase Realtime Listener für öffentliche Decks
+  // Aktualisiert die Decks automatisch bei Änderungen
+  useEffect(() => {
+    const channel = supabase
+      .channel('public-decks')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // insert, update, delete
+          schema: 'public',
+          table: 'decks',
+          filter: 'is_public=eq.true'
+        },
+        () => {
+          fetchPublicDecks()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [fetchPublicDecks, supabase])
 
   const addDeckToCollection = async (userId: string, deckId: string) => {
     try {

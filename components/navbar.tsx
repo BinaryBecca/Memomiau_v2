@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useAuth } from "@/hooks/useAuth"
 import { NAVIGATION_ITEMS } from "@/lib/constants"
@@ -16,6 +16,10 @@ export const Navbar = () => {
   const { user, profile, signOut } = useAuth()
   const { theme, setTheme } = useTheme()
   const [catMode, setCatMode] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const getAvatarInitial = () => {
     return profile?.username.charAt(0).toUpperCase() || "U"
@@ -54,7 +58,7 @@ export const Navbar = () => {
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition">
-              {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {mounted && (theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />)}
             </button>
 
             {/* Cat Mode */}

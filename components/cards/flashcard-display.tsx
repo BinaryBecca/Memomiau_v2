@@ -63,14 +63,6 @@ export const FlashcardDisplay = ({ card, onFeedback, isLoading = false }: Flashc
             Nochmal
           </Button>
           <Button
-            onClick={() => onFeedback("yellow")}
-            disabled={isLoading}
-            variant="outline"
-            className="flex-1 border-yellow-500 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-950">
-            <span className="text-lg mr-2">⚠️</span>
-            Wiederholen
-          </Button>
-          <Button
             onClick={() => onFeedback("green")}
             disabled={isLoading}
             className="flex-1 bg-green-500 hover:bg-green-600 text-white">

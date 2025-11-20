@@ -13,7 +13,7 @@ import { Deck } from "@/lib/types"
 
 export default function DashboardPage() {
   const { user } = useAuth()
-  const { decks, loading, fetchDecks, createDeck, deleteDeck, updateDeck } = useDecks(user?.id)
+  const { decks, loading, createDeck, deleteDeck, updateDeck } = useDecks(user?.id)
   const [modalOpen, setModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null)

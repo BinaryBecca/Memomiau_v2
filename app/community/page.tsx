@@ -11,7 +11,7 @@ import { Search, Download, Wand2 } from "lucide-react"
 import Link from "next/link"
 
 export default function CommunityPage() {
-  const { user, profile } = useAuth()
+  const { user } = useAuth()
   const { decks, loading, fetchPublicDecks, addDeckToCollection } = useCommunityDecks()
   const [searchQuery, setSearchQuery] = useState("")
   const [isAddingDeck, setIsAddingDeck] = useState<string | null>(null)
@@ -101,7 +101,9 @@ export default function CommunityPage() {
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <CardTitle className="text-lg">{deck.name}</CardTitle>
-                        <CardDescription className="mt-1">Von: {deck.profiles?.username ?? "Unbekannt"}</CardDescription>
+                        <CardDescription className="mt-1">
+                          Von: {deck.profiles?.username ?? "Unbekannt"}
+                        </CardDescription>
                       </div>
                       <Badge variant="secondary">Öffentlich</Badge>
                     </div>

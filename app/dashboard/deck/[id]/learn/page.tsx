@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
 import { useCards } from "@/hooks/useCards"
@@ -18,14 +18,14 @@ export default function LearnPage() {
   const searchParams = useSearchParams()
 
   const { cards, loading: cardsLoading, fetchCards } = useCards(deckId, user?.id)
-  const { fetchStatuses, updateStatus, getStatusByCard } = useLearningStatus(user?.id)
+  const { updateStatus } = useLearningStatus(user?.id)
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [cardsToLearn, setCardsToLearn] = useState<Card[]>([])
   const [loading, setLoading] = useState(true)
   const [isUpdating, setIsUpdating] = useState(false)
   const [progress, setProgress] = useState({ green: 0, yellow: 0, red: 0 })
-
+  // ...existing code...
   const [timeLeft, setTimeLeft] = useState<number | null>(null)
   const [timerActive, setTimerActive] = useState(false)
 
@@ -51,6 +51,16 @@ export default function LearnPage() {
         const limit = parseInt(limitParam, 10)
         if (!isNaN(limit) && limit > 0) {
           filteredCards = filteredCards.slice(0, limit)
+        }
+      }
+
+      // Shuffle cards if random param is set
+      const randomParam = searchParams.get("random")
+      if (randomParam === "true") {
+        // Fisher-Yates Shuffle
+        for (let i = filteredCards.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1))
+          ;[filteredCards[i], filteredCards[j]] = [filteredCards[j], filteredCards[i]]
         }
       }
 
@@ -96,12 +106,14 @@ export default function LearnPage() {
     setIsUpdating(true)
     try {
       const currentCard = cardsToLearn[currentIndex]
-      await updateStatus(currentCard.id, status)
-
-      setProgress((prev) => ({
-        ...prev,
-        [status]: prev[status] + 1,
-      }))
+      // Nur 'green' und 'red' zulassen
+      if (status === "green" || status === "red") {
+        await updateStatus(currentCard.id, status)
+        setProgress((prev) => ({
+          ...prev,
+          [status]: prev[status] + 1,
+        }))
+      }
 
       // Move to next card
       if (currentIndex + 1 < cardsToLearn.length) {
@@ -179,7 +191,6 @@ export default function LearnPage() {
             </p>
             <div className="flex space-x-4 text-sm">
               <span className="text-green-600 dark:text-green-400">✅ {progress.green}</span>
-
               <span className="text-red-600 dark:text-red-400">❌ {progress.red}</span>
             </div>
           </div>

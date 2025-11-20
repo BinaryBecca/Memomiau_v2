@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useAuth } from "@/hooks/useAuth"
 import { NAVIGATION_ITEMS } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -40,7 +40,7 @@ export const Navbar = () => {
 
           {/* Navigation Links */}
           {user && (
-            <div className="hidden md:flex space-x-8">
+            <div className="hidden lg:flex space-x-8">
               {NAVIGATION_ITEMS.map((item) => (
                 <Link
                   key={item.href}
@@ -82,7 +82,25 @@ export const Navbar = () => {
                     </Avatar>
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-white">
+                <DropdownMenuContent align="end" className="bg-white dark:bg-slate-900">
+                  {/* Mobile Navigation Links */}
+                  <div className="block md:hidden">
+                                      {/* Tablet: md bis lg auch Dropdown */}
+                                      <div className="block md:block lg:hidden">
+                                        {NAVIGATION_ITEMS.map((item) => (
+                                          <DropdownMenuItem asChild key={item.href}>
+                                            <Link href={item.href}>{item.label}</Link>
+                                          </DropdownMenuItem>
+                                        ))}
+                                        <DropdownMenuSeparator />
+                                      </div>
+                    {NAVIGATION_ITEMS.map((item) => (
+                      <DropdownMenuItem asChild key={item.href}>
+                        <Link href={item.href}>{item.label}</Link>
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                  </div>
                   <DropdownMenuItem asChild>
                     <Link href="/dashboard/account">Account</Link>
                   </DropdownMenuItem>

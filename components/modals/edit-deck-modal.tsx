@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox"
 import { X } from "lucide-react"
 import { Deck } from "@/lib/types"
+import { useCommunityDecks } from "@/hooks/useCommunityDecks"
 
 interface EditDeckModalProps {
   open: boolean
@@ -16,6 +17,7 @@ interface EditDeckModalProps {
 }
 
 export const EditDeckModal = ({ open, onOpenChange, deck, onEditDeck, isLoading = false }: EditDeckModalProps) => {
+  const { fetchPublicDecks } = useCommunityDecks()
   const [deckName, setDeckName] = useState("")
   const [description, setDescription] = useState("")
   const [isPublic, setIsPublic] = useState(false)
@@ -43,6 +45,11 @@ export const EditDeckModal = ({ open, onOpenChange, deck, onEditDeck, isLoading 
 
     try {
       await onEditDeck(deck.id, deckName, description, isPublic)
+      // Community-Sync nach jedem Speichern, wenn Deck öffentlich
+      if (isPublic) {
+        fetchPublicDecks()
+        alert("Änderungen wurden auf die Community übertragen!")
+      }
       onOpenChange(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Fehler beim Bearbeiten des Decks")

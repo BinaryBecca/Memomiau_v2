@@ -41,7 +41,7 @@ export const Navbar = () => {
             <div className="w-8 h-8 rounded-full flex items-center justify-center">
               <Image src="/memomiau_dummy.jpg" alt="Memomiau-Logo" width={100} height={100} className="rounded-full" />
             </div>
-            <span className="font-bold text-lg hidden sm:inline">MemoMiau</span>
+            <span className="font-bold text-lg">MemoMiau</span>
           </div>
 
           {/* Navigation Links */}

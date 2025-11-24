@@ -10,7 +10,7 @@ export const useCards = (deckId: string | undefined, userId: string | undefined)
   const supabase = createClient()
 
   const fetchCards = useCallback(async () => {
-    if (!deckId || !userId) return
+    if (!deckId) return
     setLoading(true)
     try {
       // 1. Fetch cards
@@ -23,26 +23,29 @@ export const useCards = (deckId: string | undefined, userId: string | undefined)
       if (cardsError) throw cardsError
       const fetchedCards = cardsData as Card[]
 
-      // 2. Fetch statuses for these cards
-      const cardIds = fetchedCards.map((card) => card.id)
-      const { data: statusesData, error: statusesError } = await supabase
-        .from("card_learning_status")
-        .select("*")
-        .eq("user_id", userId)
-        .in("card_id", cardIds)
+      // Wenn userId vorhanden, auch Lernstatus laden
+      if (userId) {
+        const cardIds = fetchedCards.map((card) => card.id)
+        const { data: statusesData, error: statusesError } = await supabase
+          .from("card_learning_status")
+          .select("*")
+          .eq("user_id", userId)
+          .in("card_id", cardIds)
 
-      if (statusesError) throw statusesError
+        if (statusesError) throw statusesError
 
-      // 3. Combine them
-      const cardsWithStatus = fetchedCards.map((card) => {
-        const status = statusesData.find((s) => s.card_id === card.id)
-        return {
-          ...card,
-          learning_status: status?.status || null,
-        }
-      })
-
-      setCards(cardsWithStatus)
+        // 3. Combine them
+        const cardsWithStatus = fetchedCards.map((card) => {
+          const status = statusesData.find((s) => s.card_id === card.id)
+          return {
+            ...card,
+            learning_status: status?.status || null,
+          }
+        })
+        setCards(cardsWithStatus)
+      } else {
+        setCards(fetchedCards)
+      }
     } catch (error) {
       console.error("Error fetching cards:", error)
     } finally {

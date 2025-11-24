@@ -2,42 +2,42 @@ export const PRESET_AVATARS = [
   {
     id: "cat-1",
     name: "Tabby Cat",
-    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=cat1&backgroundColor=b6e3f5",
+    url: "https://robohash.org/Tabby?set=set4",
   },
   {
     id: "cat-2",
     name: "Siamese",
-    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=cat2&backgroundColor=ffd89b",
+    url: "https://robohash.org/Siamese?set=set4",
   },
   {
     id: "cat-3",
     name: "Black Cat",
-    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=cat3&backgroundColor=c0aede",
+    url: "https://robohash.org/Black?set=set4",
   },
   {
     id: "cat-4",
     name: "Orange Cat",
-    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=cat4&backgroundColor=ffdbac",
+    url: "https://robohash.org/Orange?set=set4",
   },
   {
     id: "cat-5",
     name: "White Cat",
-    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=cat5&backgroundColor=f0f0f0",
+    url: "https://robohash.org/White?set=set4",
   },
   {
     id: "cat-6",
     name: "Calico",
-    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=cat6&backgroundColor=ffe5b4",
+    url: "https://robohash.org/Calico?set=set4",
   },
   {
     id: "cat-7",
     name: "Gray Cat",
-    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=cat7&backgroundColor=d3d3d3",
+    url: "https://robohash.org/Gray?set=set4",
   },
   {
     id: "cat-8",
     name: "Ginger Cat",
-    url: "https://api.dicebear.com/7.x/avataaars/svg?seed=cat8&backgroundColor=ffb366",
+    url: "https://robohash.org/Ginger?set=set4",
   },
 ]
 

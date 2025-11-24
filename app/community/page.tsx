@@ -113,6 +113,9 @@ export default function CommunityPage() {
                     <p className="text-xs text-gray-500 dark:text-gray-500">
                       Erstellt: {new Date(deck.created_at).toLocaleDateString("de-DE")}
                     </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500">
+                      {deck.cards?.length ? `${deck.cards.length} Karten` : "0 Karten"}
+                    </p>
 
                     {user ? (
                       <Button

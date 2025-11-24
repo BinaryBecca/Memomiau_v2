@@ -16,6 +16,7 @@ import { Deck } from "@/lib/types"
 import Link from "next/link"
 
 export default function DeckDetailPage() {
+  const { fetchPublicDecks } = useCommunityDecks()
   const params = useParams()
   const router = useRouter()
   const { user } = useAuth()
@@ -53,9 +54,6 @@ export default function DeckDetailPage() {
     }
   }, [deckId, fetchCards])
 
-  // Community-Decks synchronisieren nach Kartenänderung
-  const { fetchPublicDecks } = useCommunityDecks()
-
   const handleDeleteCard = async (cardId: string) => {
     if (!confirm("Möchtest du diese Karte wirklich löschen?")) {
       return
@@ -64,10 +62,6 @@ export default function DeckDetailPage() {
     try {
       setDeletingCardId(cardId)
       await deleteCard(cardId)
-      // Falls Deck öffentlich, Community aktualisieren
-      if (deck?.is_public) {
-        fetchPublicDecks()
-      }
     } catch (error) {
       console.error("Error deleting card:", error)
       alert("Fehler beim Löschen der Karte")
@@ -85,10 +79,6 @@ export default function DeckDetailPage() {
     try {
       await updateCard(cardId, { front, back })
       setEditModalOpen(false)
-      // Falls Deck öffentlich, Community aktualisieren
-      if (deck?.is_public) {
-        fetchPublicDecks()
-      }
     } catch (error) {
       console.error("Error updating card:", error)
     }
@@ -210,6 +200,15 @@ export default function DeckDetailPage() {
                       Mit KI generieren
                     </Link>
                   </Button>
+                  <Button
+                    variant="default"
+                    className="flex-1"
+                    onClick={() => {
+                      fetchPublicDecks()
+                      alert("Flashcards wurden auf der Community aktualisiert!")
+                    }}>
+                    Flashcards auf Community aktualisieren
+                  </Button>
                 </>
               )}
             </div>
@@ -289,6 +288,18 @@ export default function DeckDetailPage() {
 
       {/* Learn Deck Modal */}
       <LearnDeckModal open={learnModalOpen} onOpenChange={setLearnModalOpen} deckId={deckId} cardCount={cards.length} />
+      {deck?.is_public && user?.id === deck.owner && (
+        <div className="fixed bottom-8 right-8 z-40">
+          <Button
+            variant="default"
+            onClick={() => {
+              fetchPublicDecks()
+              alert("Flashcards wurden auf der Community aktualisiert!")
+            }}>
+            Flashcards auf Community aktualisieren
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

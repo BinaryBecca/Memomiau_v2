@@ -288,18 +288,6 @@ export default function DeckDetailPage() {
 
       {/* Learn Deck Modal */}
       <LearnDeckModal open={learnModalOpen} onOpenChange={setLearnModalOpen} deckId={deckId} cardCount={cards.length} />
-      {deck?.is_public && user?.id === deck.owner && (
-        <div className="fixed bottom-8 right-8 z-40">
-          <Button
-            variant="default"
-            onClick={() => {
-              fetchPublicDecks()
-              alert("Flashcards wurden auf der Community aktualisiert!")
-            }}>
-            Flashcards auf Community aktualisieren
-          </Button>
-        </div>
-      )}
     </div>
   )
 }

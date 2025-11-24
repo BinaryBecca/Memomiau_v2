@@ -111,10 +111,10 @@ export default function CommunityPage() {
                   <CardContent className="space-y-4">
                     {deck.description && <p className="text-sm text-gray-600 dark:text-gray-400">{deck.description}</p>}
                     <p className="text-xs text-gray-500 dark:text-gray-500">
-                      Erstellt: {new Date(deck.created_at).toLocaleDateString("de-DE")}
+                      {typeof deck.cards?.[0]?.count === 'number' ? `${deck.cards[0].count} Karten` : "0 Karten"}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-500">
-                      {deck.cards?.length ? `${deck.cards.length} Karten` : "0 Karten"}
+                      Erstellt: {new Date(deck.created_at).toLocaleDateString("de-DE")}
                     </p>
 
                     {user ? (

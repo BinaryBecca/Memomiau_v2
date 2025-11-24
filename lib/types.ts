@@ -20,6 +20,7 @@ export interface Deck {
   profiles: {
     username: string
   } | null
+  cards?: { count: number }[]
 }
 
 export interface Card {

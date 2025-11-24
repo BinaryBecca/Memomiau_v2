@@ -71,7 +71,7 @@ export const useAuth = () => {
           data: {
             first_name: firstName,
             last_name: lastName,
-            username
+            username,
           },
         },
       })
@@ -128,21 +128,6 @@ export const useAuth = () => {
     }
   }
 
-  const signInWithGoogle = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      })
-
-      if (error) throw error
-    } catch (error) {
-      throw error
-    }
-  }
-
   const signOut = async () => {
     try {
       await supabase.auth.signOut()
@@ -158,7 +143,6 @@ export const useAuth = () => {
     loading,
     signUp,
     signIn,
-    signInWithGoogle,
     signOut,
   }
 }

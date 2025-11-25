@@ -10,7 +10,6 @@ interface CreateDeckModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onCreateDeck: (name: string, description: string, isPublic: boolean) => Promise<void>
-  onAIGenerate?: (name: string) => void
   isLoading?: boolean
 }
 
@@ -18,7 +17,6 @@ export const CreateDeckModal = ({
   open,
   onOpenChange,
   onCreateDeck,
-  onAIGenerate,
   isLoading = false,
 }: CreateDeckModalProps) => {
   const [deckName, setDeckName] = useState("")
@@ -44,15 +42,6 @@ export const CreateDeckModal = ({
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create deck")
     }
-  }
-
-  const handleAIGenerate = () => {
-    if (!deckName.trim()) {
-      setError("Deck name is required")
-      return
-    }
-
-    onAIGenerate?.(deckName)
   }
 
   if (!open) return null
@@ -117,14 +106,6 @@ export const CreateDeckModal = ({
             <div className="flex space-x-2 pt-4">
               <Button type="submit" disabled={isLoading || !deckName.trim()} className="flex-1">
                 {isLoading ? "Wird erstellt..." : "Neues Deck erstellen"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isLoading || !deckName.trim()}
-                onClick={handleAIGenerate}
-                className="flex-1">
-                {isLoading ? "Wird generiert..." : "Mit KI erstellen"}
               </Button>
             </div>
           </form>

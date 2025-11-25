@@ -68,10 +68,11 @@ export const useAuth = () => {
         email,
         password,
         options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`, // Redirect after email confirmation
           data: {
             first_name: firstName,
             last_name: lastName,
-            username
+            username,
           },
         },
       })
@@ -87,7 +88,6 @@ export const useAuth = () => {
         console.log("Profile created automatically by trigger for user:", data.user.id)
 
         // Update the profile with additional data (username, avatar, etc.)
-        // The trigger automatically creates a basic profile with id and email
         const { error: updateError } = await supabase
           .from("profiles")
           .update({
@@ -105,6 +105,36 @@ export const useAuth = () => {
         }
 
         console.log("Profile updated successfully for user:", data.user.id)
+
+        // Debugging: Check session status
+        const sessionCheck = await supabase.auth.getSession()
+        console.log("Session status after signup:", sessionCheck)
+
+        if (!sessionCheck.data.session) {
+          console.warn("No active session found after signup. User may need to log in manually.")
+        } else {
+          console.log("Active session found:", sessionCheck.data.session)
+        }
+
+        // Check if the session exists or re-authenticate
+        const session = await supabase.auth.getSession()
+        if (!session.data.session) {
+          console.log("No active session found. Attempting to re-authenticate user...")
+
+          // Wait for email confirmation and re-authenticate
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          })
+
+          if (signInError) {
+            console.error("Re-authentication error:", signInError)
+            throw signInError
+          }
+
+          console.log("User successfully re-authenticated after email confirmation.")
+        }
+
         router.push("/dashboard")
       }
     } catch (error) {

@@ -53,10 +53,6 @@ export default function DashboardPage() {
     }
   }
 
-  const handleAIGenerate = (name: string) => {
-    console.log("AI generate for:", name)
-  }
-
   const handleDeleteDeck = async (deckId: string) => {
     try {
       await deleteDeck(deckId)
@@ -146,7 +142,6 @@ export default function DashboardPage() {
         open={modalOpen}
         onOpenChange={setModalOpen}
         onCreateDeck={handleCreateDeck}
-        onAIGenerate={handleAIGenerate}
       />
 
       {/* Edit Deck Modal */}

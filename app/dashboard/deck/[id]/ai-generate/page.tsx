@@ -20,12 +20,8 @@ export default function AIGeneratePage() {
     setIsLoading(true)
     setError("")
     try {
-      // Beispiel: API-Aufruf an AI-Service, der ein zufälliges Thema generiert
-      // Ersetze die URL und das Payload nach Bedarf
-      const response = await fetch("/api/ai/random-topic", {
+      const response = await fetch("/api/topics", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
       })
       const data = await response.json()
       if (data.topic) {

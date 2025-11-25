@@ -3,23 +3,8 @@
 import { useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, Wand2, Dice5 } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
-const RANDOM_TOPICS = [
-  "Photosynthese",
-  "Französische Revolution",
-  "Quantenmechanik",
-  "Shakespeares Werke",
-  "Organische Chemie",
-  "Geschichte des Computers",
-  "Biologie der Zellmembran",
-  "Europäische Hauptstädte",
-  "Mathematische Ableitungen",
-  "Klimawandel",
-]
 
 export default function AIGeneratePage() {
   const params = useParams()
@@ -31,9 +16,28 @@ export default function AIGeneratePage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const handleRandomTopic = () => {
-    const randomTopic = RANDOM_TOPICS[Math.floor(Math.random() * RANDOM_TOPICS.length)]
-    setTopic(randomTopic)
+  const handleRandomTopic = async () => {
+    setIsLoading(true)
+    setError("")
+    try {
+      // Beispiel: API-Aufruf an AI-Service, der ein zufälliges Thema generiert
+      // Ersetze die URL und das Payload nach Bedarf
+      const response = await fetch("/api/ai/random-topic", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      })
+      const data = await response.json()
+      if (data.topic) {
+        setTopic(data.topic)
+      } else {
+        setError("Konnte kein zufälliges Thema generieren.")
+      }
+    } catch (err) {
+      setError("Fehler beim Generieren eines zufälligen Themas.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleGenerate = async (e: React.FormEvent) => {
@@ -86,14 +90,16 @@ export default function AIGeneratePage() {
           <form onSubmit={handleGenerate} className="space-y-6">
             {/* Topic */}
             <div className="space-y-2">
-              <Label htmlFor="topic">Thema</Label>
+              <Label htmlFor="topic">Thema oder Prompt</Label>
               <div className="flex space-x-2">
-                <Input
+                <textarea
                   id="topic"
-                  placeholder="Z.B. Französische Revolution"
+                  placeholder="Beschreibe dein Thema oder gib mehrere Sätze als Prompt ein..."
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
                   disabled={isLoading}
+                  rows={3}
+                  className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                 />
                 <Button
                   type="button"
@@ -110,18 +116,20 @@ export default function AIGeneratePage() {
             {/* Card Count */}
             <div className="space-y-2">
               <Label htmlFor="cardCount">Anzahl Karten</Label>
-              <Select value={cardCount} onValueChange={setCardCount} disabled={isLoading}>
-                <SelectTrigger id="cardCount">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="3">3 Karten</SelectItem>
-                  <SelectItem value="5">5 Karten</SelectItem>
-                  <SelectItem value="10">10 Karten</SelectItem>
-                  <SelectItem value="15">15 Karten</SelectItem>
-                  <SelectItem value="20">20 Karten</SelectItem>
-                </SelectContent>
-              </Select>
+              <input
+                id="cardCount"
+                type="number"
+                min={1}
+                max={500}
+                value={cardCount}
+                onChange={(e) => {
+                  const val = Math.max(1, Math.min(500, Number(e.target.value)))
+                  setCardCount(val.toString())
+                }}
+                disabled={isLoading}
+                className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                placeholder="Anzahl zwischen 1 und 500"
+              />
             </div>
 
             {/* Info */}

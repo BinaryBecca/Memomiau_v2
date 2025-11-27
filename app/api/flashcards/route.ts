@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     let cards;
     try {
       // Extrahiere das erste JSON-Array aus der KI-Antwort
-      const match = response.text.match(/\[.*\]/s);
+      const match = response.text.match(/\[([\s\S]*?)\]/);
       if (match) {
         cards = JSON.parse(match[0]);
       } else {

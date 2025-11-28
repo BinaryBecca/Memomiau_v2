@@ -66,15 +66,6 @@ export const LoginForm = () => {
             </Button>
           </form>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t dark:border-slate-700"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-slate-900 text-gray-500">Or continue with</span>
-            </div>
-          </div>
-
           <OAuthButtons />
 
           <p className="text-center text-sm text-gray-600 dark:text-gray-400">

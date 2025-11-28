@@ -1,14 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useAuth } from "@/hooks/useAuth"
-import { PRESET_AVATARS } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { OAuthButtons } from "./oauth-buttons"
 import Link from "next/link"
+import Image from "next/image"
 
 export const SignupForm = () => {
   const { signUp } = useAuth()
@@ -20,13 +20,37 @@ export const SignupForm = () => {
     password: "",
     confirmPassword: "",
   })
-  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null)
+  const [randomAvatarUrl, setRandomAvatarUrl] = useState<string | null>(null)
+  const [isLoadingRandom, setIsLoadingRandom] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+
+  // Lade automatisch ein zufälliges Avatar beim Mount
+  useEffect(() => {
+    handleGenerateRandomAvatar()
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleGenerateRandomAvatar = async () => {
+    setIsLoadingRandom(true)
+    setError("")
+    try {
+      const response = await fetch("/api/random-avatar")
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Fehler beim Laden des Bildes")
+      }
+      const data = await response.json()
+      setRandomAvatarUrl(data.url)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Fehler beim Generieren")
+    } finally {
+      setIsLoadingRandom(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,16 +67,14 @@ export const SignupForm = () => {
         throw new Error("Password must be at least 6 characters")
       }
 
-      const avatarData = PRESET_AVATARS.find((a) => a.id === selectedAvatar)
-
       await signUp(
         formData.email,
         formData.password,
         formData.firstName,
         formData.lastName,
         formData.username,
-        selectedAvatar,
-        avatarData?.url || null
+        null,
+        randomAvatarUrl
       )
     } catch (err) {
       setError(err instanceof Error ? err.message : "Signup failed")
@@ -74,6 +96,32 @@ export const SignupForm = () => {
               {error}
             </div>
           )}
+
+          {/* Avatar Selection - moved to top */}
+          <div className="space-y-3">
+            {randomAvatarUrl && (
+              <div className="flex justify-center p-4 border rounded-lg bg-gray-50 dark:bg-slate-800">
+                <Image
+                  src={randomAvatarUrl}
+                  alt="Zufälliges Avatar"
+                  width={128}
+                  height={128}
+                  className="rounded-full object-cover"
+                />
+              </div>
+            )}
+            <Label>Wähle ein Profilbild</Label>
+            <div className="flex gap-2 items-center">
+              <Button
+                type="button"
+                onClick={handleGenerateRandomAvatar}
+                disabled={isLoadingRandom || loading}
+                variant="outline"
+                size="sm">
+                {isLoadingRandom ? "Lädt..." : "Zufälliges Katzenbild"}
+              </Button>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Name Fields */}
@@ -133,41 +181,10 @@ export const SignupForm = () => {
               />
             </div>
 
-            {/* Avatar Selection */}
-            <div className="space-y-3">
-              <Label>Choose Avatar</Label>
-              <div className="grid grid-cols-4 gap-2">
-                {PRESET_AVATARS.map((avatar) => (
-                  <button
-                    key={avatar.id}
-                    type="button"
-                    onClick={() => setSelectedAvatar(avatar.id)}
-                    className={`p-2 rounded-lg transition border-2 ${
-                      selectedAvatar === avatar.id
-                        ? "border-purple-500 bg-purple-50 dark:bg-purple-900"
-                        : "border-gray-200 dark:border-slate-700 hover:border-gray-300"
-                    }`}
-                    title={avatar.name}>
-                    <img src={avatar.url} alt={avatar.name} className="w-full h-auto rounded" />
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <Button type="submit" disabled={loading} className="w-full">
               {loading ? "Creating account..." : "Create Account"}
             </Button>
           </form>
-
-          {/* OAuth */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t dark:border-slate-700"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-slate-900 text-gray-500">Or continue with</span>
-            </div>
-          </div>
 
           <OAuthButtons />
 

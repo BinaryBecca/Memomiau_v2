@@ -6,13 +6,12 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { PRESET_AVATARS } from "@/lib/constants"
 import { ArrowLeft } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
 export default function AccountPage() {
+  const [editMode, setEditMode] = useState(false)
   const { user, profile, signOut } = useAuth()
   const router = useRouter()
   const supabase = createClient()
@@ -23,10 +22,12 @@ export default function AccountPage() {
     username: "",
     email: "",
   })
-  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null)
+  const [randomAvatarUrl, setRandomAvatarUrl] = useState<string | null>(null)
+  const [isLoadingRandom, setIsLoadingRandom] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [showNotification, setShowNotification] = useState(false)
 
   useEffect(() => {
     if (profile) {
@@ -36,13 +37,72 @@ export default function AccountPage() {
         username: profile.username,
         email: profile.email,
       })
-      setSelectedAvatar(profile.preset_avatar)
     }
   }, [profile])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleGenerateRandomAvatar = async () => {
+    setIsLoadingRandom(true)
+    setError("")
+    try {
+      const response = await fetch("/api/random-avatar")
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Fehler beim Laden des Bildes")
+      }
+      const data = await response.json()
+      setRandomAvatarUrl(data.url)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Fehler beim Generieren")
+    } finally {
+      setIsLoadingRandom(false)
+    }
+  }
+
+  const handleSaveRandomAvatar = async () => {
+    if (!randomAvatarUrl || !user?.id) return
+    setIsLoading(true)
+    setError("")
+    try {
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({
+          avatar_url: randomAvatarUrl,
+          preset_avatar: null,
+        })
+        .eq("id", user.id)
+
+      if (updateError) throw updateError
+
+      // Profil neu laden
+      const { data: updatedProfile, error: fetchError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single()
+      if (fetchError) throw fetchError
+
+      if (updatedProfile && profile) {
+        Object.assign(profile, updatedProfile)
+      }
+
+      setSuccess("Profilbild erfolgreich aktualisiert!")
+      setShowNotification(true)
+      setRandomAvatarUrl(null)
+      setEditMode(false)
+      setTimeout(() => {
+        setShowNotification(false)
+        setSuccess("")
+      }, 2500)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Fehler beim Speichern")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,22 +114,44 @@ export default function AccountPage() {
     try {
       if (!user?.id) throw new Error("User not found")
 
-      const avatarData = PRESET_AVATARS.find((a) => a.id === selectedAvatar)
-
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
           first_name: formData.firstName,
           last_name: formData.lastName,
           username: formData.username,
-          preset_avatar: selectedAvatar,
-          avatar_url: avatarData?.url || null,
         })
         .eq("id", user.id)
 
       if (updateError) throw updateError
 
+      // Profil nach Update neu laden und Vorschau aktualisieren
+      const { data: updatedProfile, error: fetchError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single()
+      if (fetchError) throw fetchError
+      // Falls useAuth kein setter bietet, lokal updaten:
+      if (updatedProfile) {
+        setFormData({
+          firstName: updatedProfile.first_name || "",
+          lastName: updatedProfile.last_name || "",
+          username: updatedProfile.username,
+          email: updatedProfile.email,
+        })
+        // Vorschau: Profile-Objekt updaten (nur falls nicht automatisch)
+        if (profile) {
+          Object.assign(profile, updatedProfile)
+        }
+      }
       setSuccess("Profil erfolgreich aktualisiert!")
+      setEditMode(false)
+      setShowNotification(true)
+      setTimeout(() => {
+        setShowNotification(false)
+        setSuccess("")
+      }, 2500)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Fehler beim Aktualisieren")
     } finally {
@@ -90,121 +172,124 @@ export default function AccountPage() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Konto</h1>
         </div>
 
-        {/* Profile Card */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Profilbild</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center space-x-4 mb-6">
-              <Avatar className="w-20 h-20">
-                <AvatarImage src={profile?.avatar_url || ""} />
-                <AvatarFallback>{profile?.username.charAt(0).toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-semibold text-gray-900 dark:text-white">{profile?.username}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{profile?.email}</p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Label>Wähle ein neues Avatar-Bild</Label>
-              <div className="grid grid-cols-4 gap-2">
-                {PRESET_AVATARS.map((avatar) => (
-                  <button
-                    key={avatar.id}
-                    onClick={() => setSelectedAvatar(avatar.id)}
-                    className={`p-2 rounded-lg transition border-2 ${
-                      selectedAvatar === avatar.id
-                        ? "border-purple-500 bg-purple-50 dark:bg-purple-900"
-                        : "border-gray-200 dark:border-slate-700 hover:border-gray-300"
-                    }`}
-                    title={avatar.name}>
-                    <img src={avatar.url} alt={avatar.name} className="w-full h-auto rounded" />
-                  </button>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Profile Form */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Profilinformationen</CardTitle>
-            <CardDescription>Aktualisiere deine persönlichen Daten</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {error && (
-              <div className="p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 rounded-lg text-sm mb-4">
-                {error}
-              </div>
-            )}
-            {success && (
-              <div className="p-3 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-100 rounded-lg text-sm mb-4">
-                {success}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">Vorname</Label>
-                  <Input
-                    id="firstName"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                  />
+        {/* Profil-Vorschau */}
+        <div className="flex items-start gap-6 p-8 mb-8 bg-white dark:bg-slate-900 rounded-xl shadow border border-gray-200 dark:border-slate-800">
+          <Avatar className="w-32 h-32 flex-shrink-0">
+            <AvatarImage src={randomAvatarUrl || profile?.avatar_url || ""} />
+            <AvatarFallback>{profile?.username?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col gap-2 flex-1">
+            {editMode ? (
+              <form onSubmit={handleSubmit} className="flex flex-col gap-2" autoComplete="off">
+                {/* Avatar-Generierung */}
+                <div className="mb-3 pb-3 border-b border-gray-200 dark:border-slate-700">
+                  <Label className="text-sm mb-2 block">Profilbild ändern</Label>
+                  <div className="flex gap-2 items-center">
+                    <Button
+                      type="button"
+                      onClick={handleGenerateRandomAvatar}
+                      disabled={isLoadingRandom || isLoading}
+                      variant="outline"
+                      size="sm">
+                      {isLoadingRandom ? "Lädt..." : "Zufälliges Katzenbild"}
+                    </Button>
+                    {randomAvatarUrl && (
+                      <>
+                        <Button type="button" onClick={handleSaveRandomAvatar} disabled={isLoading} size="sm">
+                          Übernehmen
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => setRandomAvatarUrl(null)}
+                          disabled={isLoading}
+                          variant="outline"
+                          size="sm">
+                          Verwerfen
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Nachname</Label>
-                  <Input
-                    id="lastName"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    disabled={isLoading}
-                  />
-                </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="username">Benutzername</Label>
                 <Input
-                  id="username"
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
+                  placeholder="Benutzername"
+                  className="text-2xl font-bold"
                   disabled={isLoading}
                 />
-              </div>
+                <div className="flex gap-2">
+                  <Input
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    placeholder="Vorname"
+                    className="text-base"
+                    disabled={isLoading}
+                  />
+                  <Input
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    placeholder="Nachname"
+                    className="text-base"
+                    disabled={isLoading}
+                  />
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">{formData.email || user?.email || "-"}</div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">E-Mail</Label>
-                <Input id="email" type="email" value={formData.email} disabled />
-                <p className="text-xs text-gray-600 dark:text-gray-400">E-Mail kann nicht geändert werden</p>
-              </div>
-
-              <Button type="submit" disabled={isLoading} className="w-full">
-                {isLoading ? "Wird gespeichert..." : "Änderungen speichern"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                <div className="flex gap-2 mt-2">
+                  <Button type="submit" disabled={isLoading} size="sm">
+                    {isLoading ? "Speichern..." : "Speichern"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setEditMode(false)
+                      setRandomAvatarUrl(null)
+                      setError("")
+                    }}
+                    disabled={isLoading}>
+                    Abbrechen
+                  </Button>
+                </div>
+                {error && (
+                  <div className="p-2 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 rounded-lg text-xs mt-2">
+                    {error}
+                  </div>
+                )}
+              </form>
+            ) : (
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">{profile?.username || "-"}</div>
+                  <Button size="sm" variant="outline" onClick={() => setEditMode(true)}>
+                    Bearbeiten
+                  </Button>
+                </div>
+                <div className="text-base text-gray-700 dark:text-gray-300">
+                  {profile?.first_name || "-"} {profile?.last_name || "-"}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">{profile?.email || user?.email || "-"}</div>
+                {showNotification && (
+                  <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-green-600 text-white rounded shadow-lg animate-fade-in-out">
+                    {success}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
 
         {/* Logout */}
-        <Card className="border-red-200 dark:border-red-900">
-          <CardHeader>
-            <CardTitle className="text-red-600 dark:text-red-400">Sicherheit</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={signOut} variant="destructive" className="w-full">
-              Abmelden
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="mt-6">
+          <Button onClick={signOut} className="w-full">
+            Abmelden
+          </Button>
+        </div>
       </div>
     </div>
   )

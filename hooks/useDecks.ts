@@ -6,6 +6,7 @@ import { Deck } from "@/lib/types"
 
 export const useDecks = (userId: string | undefined) => {
   const [decks, setDecks] = useState<Deck[]>([])
+  const [cardCounts, setCardCounts] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true) // Start mit true für initiales Laden
   const supabase = createClient()
 
@@ -20,7 +21,27 @@ export const useDecks = (userId: string | undefined) => {
         .order("created_at", { ascending: false })
 
       if (error) throw error
-      setDecks(data as Deck[])
+
+      const decksData = data as Deck[]
+      setDecks(decksData)
+
+      // Fetch card counts for all decks
+      if (decksData.length > 0) {
+        const counts: Record<string, number> = {}
+
+        for (const deck of decksData) {
+          const { count, error: countError } = await supabase
+            .from("cards")
+            .select("*", { count: "exact" })
+            .eq("deck_id", deck.id)
+
+          if (!countError) {
+            counts[deck.id] = count || 0
+          }
+        }
+
+        setCardCounts(counts)
+      }
     } catch (error) {
       console.error("Error fetching decks:", error)
     } finally {
@@ -49,6 +70,7 @@ export const useDecks = (userId: string | undefined) => {
         if (error) throw error
 
         setDecks((prev) => [data as Deck, ...prev])
+        setCardCounts((prev) => ({ ...prev, [data.id]: 0 }))
         return data
       } catch (error) {
         console.error("Error creating deck:", error)
@@ -61,11 +83,16 @@ export const useDecks = (userId: string | undefined) => {
   const deleteDeck = useCallback(
     async (deckId: string) => {
       try {
-        const { error } = await supabase.from("decks").delete().eq("id", deckId).eq("owner", userId)
+        const { error } = await supabase.from("decks").delete().eq("id", deckId).eq("owner", userId!)
 
         if (error) throw error
 
         setDecks((prev) => prev.filter((deck) => deck.id !== deckId))
+        setCardCounts((prev) => {
+          const newCounts = { ...prev }
+          delete newCounts[deckId]
+          return newCounts
+        })
       } catch (error) {
         console.error("Error deleting deck:", error)
         throw error
@@ -120,8 +147,9 @@ export const useDecks = (userId: string | undefined) => {
 
   return {
     decks,
+    cardCounts,
     loading,
-    fetchDecks,
+    refetch: fetchDecks,
     createDeck,
     deleteDeck,
     updateDeck,

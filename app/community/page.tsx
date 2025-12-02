@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/useAuth"
 import { useCommunityDecks } from "@/hooks/useCommunityDecks"
 import { Button } from "@/components/ui/button"
@@ -8,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Search, Download, Wand2 } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import LoadingCat from "@/components/cat-loader"
 
@@ -17,6 +19,8 @@ export default function CommunityPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [isAddingDeck, setIsAddingDeck] = useState<string | null>(null)
   const [showLoader, setShowLoader] = useState(true)
+  const supabase = createClient()
+  const router = useRouter()
 
   useEffect(() => {
     fetchPublicDecks()
@@ -44,9 +48,47 @@ export default function CommunityPage() {
 
     setIsAddingDeck(deckId)
     try {
-      await addDeckToCollection(user.id, deckId)
-      // Show success message (could be improved with toast)
-      alert("Deck zu deiner Sammlung hinzugefügt!")
+      // Find the deck data from the current decks list
+      const deck = decks.find((d) => d.id === deckId)
+      if (!deck) throw new Error("Deck not found")
+
+      // Copy the public deck to user's collection
+      const { data, error } = await supabase
+        .from("decks")
+        .insert([
+          {
+            owner: user.id,
+            name: deck.name,
+            description: deck.description,
+            is_public: false,
+          },
+        ])
+        .select()
+        .single()
+
+      if (error) throw error
+
+      // Fetch cards directly from database
+      const { data: cardsData, error: fetchError } = await supabase.from("cards").select("*").eq("deck_id", deckId)
+
+      if (fetchError) throw fetchError
+
+      // Copy all cards from public deck to new deck
+      if (cardsData && cardsData.length > 0) {
+        const newCards = cardsData.map((card) => ({
+          deck_id: data.id,
+          front: card.front,
+          back: card.back,
+          image_url: card.image_url || null,
+        }))
+
+        const { error: cardsError } = await supabase.from("cards").insert(newCards)
+
+        if (cardsError) throw cardsError
+      }
+
+      // Redirect to dashboard after successful addition
+      router.push("/dashboard")
     } catch (error) {
       console.error("Error adding deck:", error)
       alert("Fehler beim Hinzufügen des Decks")

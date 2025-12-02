@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft, Download } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Deck } from "@/lib/types"
+import { Card } from "@/lib/types"
 import LoadingCat from "@/components/cat-loader"
 
 export default function CommunityDeckDetailPage() {
@@ -17,7 +18,8 @@ export default function CommunityDeckDetailPage() {
   const deckId = params.id as string
   const supabase = createClient()
 
-  const { cards, loading: cardsLoading, fetchCards } = useCards(deckId)
+  const [cards, setCards] = useState<Card[]>([])
+  const [cardsLoading, setCardsLoading] = useState(true)
 
   const [deck, setDeck] = useState<Deck | null>(null)
   const [loading, setLoading] = useState(true)
@@ -41,10 +43,28 @@ export default function CommunityDeckDetailPage() {
   }, [deckId, supabase])
 
   useEffect(() => {
-    if (deckId) {
-      fetchCards()
+    const fetchCards = async () => {
+      if (!deckId) return
+      setCardsLoading(true)
+      try {
+        const { data: cardsData, error } = await supabase
+          .from("cards")
+          .select("*")
+          .eq("deck_id", deckId)
+          .order("created_at", { ascending: false })
+
+        if (error) throw error
+        setCards((cardsData || []) as Card[])
+      } catch (error) {
+        console.error("Error fetching cards:", error)
+        setCards([])
+      } finally {
+        setCardsLoading(false)
+      }
     }
-  }, [deckId, fetchCards])
+
+    fetchCards()
+  }, [deckId, supabase])
 
   const handleAddDeck = async () => {
     if (!user?.id || !deck) return
@@ -67,13 +87,18 @@ export default function CommunityDeckDetailPage() {
 
       if (error) throw error
 
+      // Fetch cards directly from database instead of using state
+      const { data: cardsData, error: fetchError } = await supabase.from("cards").select("*").eq("deck_id", deckId)
+
+      if (fetchError) throw fetchError
+
       // Copy all cards from public deck to new deck
-      if (cards.length > 0) {
-        const newCards = cards.map((card) => ({
+      if (cardsData && cardsData.length > 0) {
+        const newCards = cardsData.map((card) => ({
           deck_id: data.id,
           front: card.front,
           back: card.back,
-          image_url: card.image_url,
+          image_url: card.image_url || null,
         }))
 
         const { error: cardsError } = await supabase.from("cards").insert(newCards)
@@ -81,7 +106,6 @@ export default function CommunityDeckDetailPage() {
         if (cardsError) throw cardsError
       }
 
-      alert("Deck zu deiner Sammlung hinzugefügt!")
       router.push("/dashboard")
     } catch (error) {
       console.error("Error adding deck:", error)

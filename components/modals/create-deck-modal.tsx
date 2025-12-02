@@ -46,15 +46,6 @@ export const CreateDeckModal = ({
     }
   }
 
-  const handleAIGenerate = () => {
-    if (!deckName.trim()) {
-      setError("Deck name is required")
-      return
-    }
-
-    onAIGenerate?.(deckName)
-  }
-
   if (!open) return null
 
   return (
@@ -115,16 +106,8 @@ export const CreateDeckModal = ({
             </div>
 
             <div className="flex space-x-2 pt-4">
-              <Button type="submit" disabled={isLoading || !deckName.trim()} className="flex-1">
+              <Button type="submit" disabled={isLoading || !deckName.trim()} className="w-full">
                 {isLoading ? "Wird erstellt..." : "Neues Deck erstellen"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isLoading || !deckName.trim()}
-                onClick={handleAIGenerate}
-                className="flex-1">
-                {isLoading ? "Wird generiert..." : "Mit KI erstellen"}
               </Button>
             </div>
           </form>

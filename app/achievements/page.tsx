@@ -152,40 +152,68 @@ export default function AchievementsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
+                {/* Starter Badge */}
                 <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-950 rounded-lg">
                   <div className="text-3xl mb-2">🥇</div>
                   <p className="text-sm font-semibold">Starter</p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">✓ Erledigt</p>
                 </div>
 
-                <div className="text-center p-4 bg-gray-100 dark:bg-slate-800 rounded-lg opacity-50">
+                {/* Pro Badge */}
+                <div
+                  className={`text-center p-4 rounded-lg ${
+                    stats.totalCards >= 100 ? "bg-blue-50 dark:bg-blue-950" : "bg-gray-100 dark:bg-slate-800 opacity-50"
+                  }`}>
                   <div className="text-3xl mb-2">🥈</div>
                   <p className="text-sm font-semibold">Pro</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">100 Karten</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {stats.totalCards >= 100 ? "✓ Erledigt" : `${stats.totalCards}/100 Karten`}
+                  </p>
                 </div>
 
-                <div className="text-center p-4 bg-gray-100 dark:bg-slate-800 rounded-lg opacity-50">
+                {/* Master Badge */}
+                <div
+                  className={`text-center p-4 rounded-lg ${
+                    stats.totalCards >= 500
+                      ? "bg-purple-50 dark:bg-purple-950"
+                      : "bg-gray-100 dark:bg-slate-800 opacity-50"
+                  }`}>
                   <div className="text-3xl mb-2">🥉</div>
                   <p className="text-sm font-semibold">Master</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">500 Karten</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {stats.totalCards >= 500 ? "✓ Erledigt" : `${stats.totalCards}/500 Karten`}
+                  </p>
                 </div>
 
-                <div className="text-center p-4 bg-gray-100 dark:bg-slate-800 rounded-lg opacity-50">
+                {/* Streak Badge */}
+                <div
+                  className={`text-center p-4 rounded-lg ${
+                    stats.streak >= 7 ? "bg-orange-50 dark:bg-orange-950" : "bg-gray-100 dark:bg-slate-800 opacity-50"
+                  }`}>
                   <div className="text-3xl mb-2">🔥</div>
                   <p className="text-sm font-semibold">Streak</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">7 Tage Streak</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {stats.streak >= 7 ? "✓ Erledigt" : `${stats.streak}/7 Tage Streak`}
+                  </p>
                 </div>
 
+                {/* Streak Master Badge */}
+                <div
+                  className={`text-center p-4 rounded-lg ${
+                    stats.streak >= 30 ? "bg-red-50 dark:bg-red-950" : "bg-gray-100 dark:bg-slate-800 opacity-50"
+                  }`}>
+                  <div className="text-3xl mb-2">🔥🔥</div>
+                  <p className="text-sm font-semibold">Streak Master</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {stats.streak >= 30 ? "✓ Erledigt" : `${stats.streak}/30 Tage Streak`}
+                  </p>
+                </div>
+
+                {/* Champion Badge */}
                 <div className="text-center p-4 bg-gray-100 dark:bg-slate-800 rounded-lg opacity-50">
                   <div className="text-3xl mb-2">🏆</div>
                   <p className="text-sm font-semibold">Champion</p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">Quiz Sieger</p>
-                </div>
-
-                <div className="text-center p-4 bg-gray-100 dark:bg-slate-800 rounded-lg opacity-50">
-                  <div className="text-3xl mb-2">👥</div>
-                  <p className="text-sm font-semibold">Sharer</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Decks teilen</p>
                 </div>
               </div>
             </CardContent>

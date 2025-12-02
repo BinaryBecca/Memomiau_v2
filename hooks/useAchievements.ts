@@ -20,6 +20,9 @@ export const useAchievements = () => {
     streak: 0,
     totalCards: 0,
     learningDaysThisMonth: 0,
+    dailyData: [] as { date: string; count: number }[],
+    monthlyData: [] as { month: string; count: number }[],
+    yearlyData: [] as { year: string; count: number }[],
   })
   const [loading, setLoading] = useState(true)
 
@@ -86,6 +89,9 @@ export const useAchievements = () => {
         streak: 0,
         totalCards: 0,
         learningDaysThisMonth: 0,
+        dailyData: [] as { date: string; count: number }[],
+        monthlyData: [] as { month: string; count: number }[],
+        yearlyData: [] as { year: string; count: number }[],
       }
 
       if (data && data.length > 0) {
@@ -130,7 +136,57 @@ export const useAchievements = () => {
           }
         }
 
-        newStats = { daily, weekly, monthly, totalCards, streak, learningDaysThisMonth }
+        const thirtyDaysAgo = new Date(today.getTime() - 29 * oneDay)
+
+        const dailyData = []
+        for (let i = 0; i < 30; i++) {
+          const date = new Date(today.getTime() - i * oneDay)
+          const dateStr = date.toISOString().split("T")[0]
+          const count = learningTimestamps.filter(
+            (ts) => getStartOfDay(new Date(ts)).getTime() === date.getTime()
+          ).length
+          dailyData.push({ date: dateStr, count })
+        }
+
+        // Monthly data for last 12 months
+        const monthlyData = []
+        for (let i = 0; i < 12; i++) {
+          const date = new Date(today.getFullYear(), today.getMonth() - i, 1)
+          const monthStr = date.toLocaleDateString("de-DE", { month: "short", year: "numeric" })
+          const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1)
+          const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+          const count = learningTimestamps.filter((ts) => {
+            const tsDate = new Date(ts)
+            return tsDate >= startOfMonth && tsDate <= endOfMonth
+          }).length
+          monthlyData.push({ month: monthStr, count })
+        }
+
+        // Yearly data for last 5 years
+        const yearlyData = []
+        for (let i = 0; i < 5; i++) {
+          const year = today.getFullYear() - i
+          const startOfYear = new Date(year, 0, 1)
+          const endOfYear = new Date(year, 11, 31)
+          const count = learningTimestamps.filter((ts) => {
+            const tsDate = new Date(ts)
+            return tsDate >= startOfYear && tsDate <= endOfYear
+          }).length
+          yearlyData.push({ year: year.toString(), count })
+        }
+
+        newStats = {
+          ...newStats,
+          daily,
+          weekly,
+          monthly,
+          totalCards,
+          streak,
+          learningDaysThisMonth,
+          dailyData: dailyData.reverse(),
+          monthlyData: monthlyData.reverse(),
+          yearlyData: yearlyData.reverse(),
+        }
       }
 
       // Update state and save to localStorage
@@ -143,7 +199,17 @@ export const useAchievements = () => {
       if (storedStats) {
         setStats(storedStats)
       } else {
-        setStats({ daily: 0, weekly: 0, monthly: 0, streak: 0, totalCards: 0, learningDaysThisMonth: 0 })
+        setStats({
+          daily: 0,
+          weekly: 0,
+          monthly: 0,
+          streak: 0,
+          totalCards: 0,
+          learningDaysThisMonth: 0,
+          dailyData: [],
+          monthlyData: [],
+          yearlyData: [],
+        })
       }
     } finally {
       setLoading(false)

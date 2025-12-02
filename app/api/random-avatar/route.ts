@@ -1,75 +1,53 @@
-import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 export async function GET() {
   try {
-    const supabase = await createClient();
+    // Verwende Public/Anon Key für Zugriff auf öffentliche Tabelle
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-    // Prüfe ob User eingeloggt ist
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      console.error("Auth error:", authError);
+    if (!supabaseUrl || !supabaseKey) {
+      console.error("Supabase URL or Anon Key is missing");
       return NextResponse.json(
-        { error: "Nicht authentifiziert" },
-        { status: 401 }
-      );
-    }
-
-    console.log("User authenticated:", user.id);
-
-    // Liste alle Dateien im Bucket auf
-    const { data: files, error: listError } = await supabase.storage
-      .from("profile-avatars")
-      .list("", {
-        limit: 100,
-        offset: 0,
-        sortBy: { column: "name", order: "asc" },
-      });
-
-    console.log("Storage list result:", { files, error: listError });
-
-    if (listError) {
-      console.error("Storage list error:", listError);
-      return NextResponse.json(
-        { error: "Fehler beim Abrufen der Bilder", debug: listError.message },
+        { error: "Server-Konfigurationsfehler" },
         { status: 500 }
       );
     }
 
-    console.log("Files found:", files);
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: false,
+      },
+    });
 
-    if (!files || files.length === 0) {
+    // Hole alle Avatar-URLs aus der Tabelle
+    const { data: avatars, error: queryError } = await supabase
+      .from("avatar_images")
+      .select("filename, url")
+      .order("created_at", { ascending: true });
+
+    if (queryError) {
+      console.error("Query error:", queryError);
       return NextResponse.json(
-        { error: "Keine Bilder im Storage gefunden", debug: "files array is empty or null" },
+        { error: "Fehler beim Abrufen der Avatare", debug: queryError.message },
+        { status: 500 }
+      );
+    }
+
+    if (!avatars || avatars.length === 0) {
+      return NextResponse.json(
+        { error: "Keine Avatare gefunden" },
         { status: 404 }
       );
     }
 
-    // Filtere nur Bilddateien (png, jpg, jpeg)
-    const imageFiles = files.filter((file) =>
-      /\.(png|jpg|jpeg)$/i.test(file.name)
-    );
-
-    if (imageFiles.length === 0) {
-      return NextResponse.json(
-        { error: "Keine Bilddateien gefunden" },
-        { status: 404 }
-      );
-    }
-
-    // Wähle zufällig ein Bild aus
-    const randomFile =
-      imageFiles[Math.floor(Math.random() * imageFiles.length)];
-
-    // Generiere Public URL
-    const { data: urlData } = supabase.storage
-      .from("profile-avatars")
-      .getPublicUrl(randomFile.name);
+    // Wähle zufällig ein Avatar aus
+    const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
 
     return NextResponse.json({
-      url: urlData.publicUrl,
-      filename: randomFile.name,
+      url: randomAvatar.url,
+      filename: randomAvatar.filename,
     });
   } catch (error) {
     console.error("Random avatar error:", error);

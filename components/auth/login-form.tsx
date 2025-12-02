@@ -69,7 +69,7 @@ export const LoginForm = () => {
           <OAuthButtons />
 
           <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-            Don't have an account?{" "}
+            {"Don't have an account?"}{" "}
             <Link href="/auth/signup" className="text-purple-600 dark:text-purple-400 hover:underline">
               Sign up
             </Link>

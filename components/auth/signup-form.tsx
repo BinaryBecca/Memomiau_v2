@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { OAuthButtons } from "./oauth-buttons"
 import Link from "next/link"
 import Image from "next/image"
+import LoadingCat from "@/components/cat-loader"
 
 export const SignupForm = () => {
   const { signUp } = useAuth()
@@ -24,10 +25,19 @@ export const SignupForm = () => {
   const [isLoadingRandom, setIsLoadingRandom] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [showLoader, setShowLoader] = useState(true)
 
   // Lade automatisch ein zufälliges Avatar beim Mount
   useEffect(() => {
     handleGenerateRandomAvatar()
+  }, [])
+
+  // Loader für mindestens 3 Sekunden anzeigen
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowLoader(false)
+    }, 3000)
+    return () => clearTimeout(timer)
   }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,118 +95,124 @@ export const SignupForm = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-slate-950 dark:to-slate-900">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-2">
-          <CardTitle className="text-2xl">Create Account</CardTitle>
-          <CardDescription>Join MemoMiau and start learning</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {error && (
-            <div className="p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
-
-          {/* Avatar Selection - moved to top */}
-          <div className="space-y-3">
-            {randomAvatarUrl && (
-              <div className="flex justify-center p-4 border rounded-lg bg-gray-50 dark:bg-slate-800">
-                <Image
-                  src={randomAvatarUrl}
-                  alt="Zufälliges Avatar"
-                  width={128}
-                  height={128}
-                  className="rounded-full object-cover"
-                />
+      {showLoader ? (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <LoadingCat />
+        </div>
+      ) : (
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-2">
+            <CardTitle className="text-2xl">Create Account</CardTitle>
+            <CardDescription>Join MemoMiau and start learning</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {error && (
+              <div className="p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 rounded-lg text-sm">
+                {error}
               </div>
             )}
-            <Label>Wähle ein Profilbild</Label>
-            <div className="flex gap-2 items-center">
-              <Button
-                type="button"
-                onClick={handleGenerateRandomAvatar}
-                disabled={isLoadingRandom || loading}
-                variant="outline"
-                size="sm">
-                {isLoadingRandom ? "Lädt..." : "Zufälliges Katzenbild"}
+
+            {/* Avatar Selection - moved to top */}
+            <div className="space-y-3">
+              {randomAvatarUrl && (
+                <div className="flex justify-center p-4 border rounded-lg bg-gray-50 dark:bg-slate-800">
+                  <Image
+                    src={randomAvatarUrl}
+                    alt="Zufälliges Avatar"
+                    width={128}
+                    height={128}
+                    className="rounded-full object-cover"
+                  />
+                </div>
+              )}
+              <Label>Wähle ein Profilbild</Label>
+              <div className="flex gap-2 items-center">
+                <Button
+                  type="button"
+                  onClick={handleGenerateRandomAvatar}
+                  disabled={isLoadingRandom || loading}
+                  variant="outline"
+                  size="sm">
+                  {isLoadingRandom ? "Lädt..." : "Zufälliges Katzenbild"}
+                </Button>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Name Fields */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required />
+                </div>
+              </div>
+
+              {/* Username */}
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  placeholder="Your unique username"
+                  required
+                />
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
+              </div>
+
+              {/* Password */}
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              {/* Confirm Password */}
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <Button type="submit" disabled={loading} className="w-full">
+                {loading ? "Creating account..." : "Create Account"}
               </Button>
-            </div>
-          </div>
+            </form>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required />
-              </div>
-            </div>
+            <OAuthButtons />
 
-            {/* Username */}
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                placeholder="Your unique username"
-                required
-              />
-            </div>
-
-            {/* Email */}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
-            </div>
-
-            {/* Password */}
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            {/* Confirm Password */}
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <Button type="submit" disabled={loading} className="w-full">
-              {loading ? "Creating account..." : "Create Account"}
-            </Button>
-          </form>
-
-          <OAuthButtons />
-
-          {/* Login Link */}
-          <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-            Already have an account?{" "}
-            <Link href="/auth/login" className="text-purple-600 dark:text-purple-400 hover:underline">
-              Login
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
+            {/* Login Link */}
+            <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+              Already have an account?{" "}
+              <Link href="/auth/login" className="text-purple-600 dark:text-purple-400 hover:underline">
+                Login
+              </Link>
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

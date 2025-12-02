@@ -6,7 +6,7 @@ import { Deck } from "@/lib/types"
 
 export const useCommunityDecks = () => {
   const [decks, setDecks] = useState<Deck[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true) // Start mit true für initiales Laden
   const supabase = createClient()
 
   // ...existing code...
@@ -42,14 +42,14 @@ export const useCommunityDecks = () => {
   // Aktualisiert die Decks automatisch bei Änderungen
   useEffect(() => {
     const channel = supabase
-      .channel('public-decks')
+      .channel("public-decks")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*', // insert, update, delete
-          schema: 'public',
-          table: 'decks',
-          filter: 'is_public=eq.true'
+          event: "*", // insert, update, delete
+          schema: "public",
+          table: "decks",
+          filter: "is_public=eq.true",
         },
         () => {
           fetchPublicDecks()

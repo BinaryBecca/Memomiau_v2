@@ -9,16 +9,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Search, Download, Wand2 } from "lucide-react"
 import Link from "next/link"
+import LoadingCat from "@/components/cat-loader"
 
 export default function CommunityPage() {
   const { user } = useAuth()
   const { decks, loading, fetchPublicDecks, addDeckToCollection } = useCommunityDecks()
   const [searchQuery, setSearchQuery] = useState("")
   const [isAddingDeck, setIsAddingDeck] = useState<string | null>(null)
+  const [showLoader, setShowLoader] = useState(true)
 
   useEffect(() => {
     fetchPublicDecks()
   }, [fetchPublicDecks])
+
+  // Loader für mindestens 3 Sekunden anzeigen
+  useEffect(() => {
+    if (!loading) {
+      const timer = setTimeout(() => {
+        setShowLoader(false)
+      }, 3000)
+      return () => clearTimeout(timer)
+    } else {
+      setShowLoader(true)
+    }
+  }, [loading])
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
@@ -64,12 +78,9 @@ export default function CommunityPage() {
         </div>
 
         {/* Decks Grid */}
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="animate-spin text-4xl mb-4">🐱</div>
-              <p className="text-gray-600 dark:text-gray-400">Lädt Decks...</p>
-            </div>
+        {showLoader ? (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <LoadingCat />
           </div>
         ) : decks.length === 0 ? (
           <div className="text-center py-12">

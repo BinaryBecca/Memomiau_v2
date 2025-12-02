@@ -6,7 +6,7 @@ import { Deck } from "@/lib/types"
 
 export const useDecks = (userId: string | undefined) => {
   const [decks, setDecks] = useState<Deck[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true) // Start mit true für initiales Laden
   const supabase = createClient()
 
   const fetchDecks = useCallback(async () => {

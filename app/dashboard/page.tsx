@@ -10,6 +10,7 @@ import { DeckCard } from "@/components/cards/deck-card"
 import { Plus, Upload } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Deck } from "@/lib/types"
+import LoadingCat from "@/components/cat-loader"
 
 export default function DashboardPage() {
   const { user } = useAuth()
@@ -18,6 +19,7 @@ export default function DashboardPage() {
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null)
   const [cardCounts, setCardCounts] = useState<Record<string, number>>({})
+  const [showLoader, setShowLoader] = useState(true)
   const supabase = createClient()
 
   // Decks und Kartenanzahlen laden
@@ -39,6 +41,18 @@ export default function DashboardPage() {
     fetchCounts()
   }, [user?.id, decks, supabase])
 
+  // Loader für mindestens 3 Sekunden anzeigen
+  useEffect(() => {
+    if (!loading) {
+      const timer = setTimeout(() => {
+        setShowLoader(false)
+      }, 3000)
+      return () => clearTimeout(timer)
+    } else {
+      setShowLoader(true)
+    }
+  }, [loading])
+
   const handleCreateDeck = async (name: string, description: string, isPublic: boolean) => {
     if (!user?.id) {
       console.warn("User not authenticated yet")
@@ -51,10 +65,6 @@ export default function DashboardPage() {
     } catch (error) {
       console.error("Error creating deck:", error)
     }
-  }
-
-  const handleAIGenerate = (name: string) => {
-    console.log("AI generate for:", name)
   }
 
   const handleDeleteDeck = async (deckId: string) => {
@@ -107,12 +117,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Decks Grid */}
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="animate-spin text-4xl mb-4">🐱</div>
-              <p className="text-gray-600 dark:text-gray-400">Lädt Decks...</p>
-            </div>
+        {showLoader ? (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <LoadingCat />
           </div>
         ) : decks.length === 0 ? (
           <div className="text-center py-12">
@@ -142,12 +149,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Create Deck Modal */}
-      <CreateDeckModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        onCreateDeck={handleCreateDeck}
-        onAIGenerate={handleAIGenerate}
-      />
+      <CreateDeckModal open={modalOpen} onOpenChange={setModalOpen} onCreateDeck={handleCreateDeck} />
 
       {/* Edit Deck Modal */}
       <EditDeckModal

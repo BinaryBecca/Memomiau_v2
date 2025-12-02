@@ -1,27 +1,38 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useAuth } from "@/hooks/useAuth"
 import { useAchievements } from "@/hooks/useAchievements"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { Calendar, Flame, BookOpen } from "lucide-react"
+import LoadingCat from "@/components/cat-loader"
 
 export default function AchievementsPage() {
   const { user, loading: authLoading } = useAuth()
   const { stats, loading: achievementsLoading } = useAchievements()
   const [activeTab, setActiveTab] = useState("daily")
+  const [showLoader, setShowLoader] = useState(true)
 
   const loading = authLoading || achievementsLoading
 
-  if (loading) {
+  // Loader für mindestens 3 Sekunden anzeigen
+  useEffect(() => {
+    if (!loading) {
+      const timer = setTimeout(() => {
+        setShowLoader(false)
+      }, 3000)
+      return () => clearTimeout(timer)
+    } else {
+      setShowLoader(true)
+    }
+  }, [loading])
+
+  if (showLoader) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin text-4xl mb-4">🐱</div>
-          <p className="text-gray-600 dark:text-gray-400">Lädt Achievements...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <LoadingCat />
       </div>
     )
   }

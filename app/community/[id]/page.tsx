@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft, Download } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Deck } from "@/lib/types"
+import LoadingCat from "@/components/cat-loader"
 
 export default function CommunityDeckDetailPage() {
   const params = useParams()
@@ -93,10 +94,7 @@ export default function CommunityDeckDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin text-4xl mb-4">🐱</div>
-          <p className="text-gray-600 dark:text-gray-400">Lädt Deck...</p>
-        </div>
+        <LoadingCat />
       </div>
     )
   }
@@ -159,9 +157,8 @@ export default function CommunityDeckDetailPage() {
           <div className="space-y-2">
             {/* Cards List */}
             {cardsLoading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin text-2xl mb-2">🐱</div>
-                <p className="text-gray-600 dark:text-gray-400">Lädt Karten...</p>
+              <div className="flex items-center justify-center py-8">
+                <LoadingCat />
               </div>
             ) : (
               <div className="space-y-2">

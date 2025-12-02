@@ -9,6 +9,7 @@ import { FlashcardDisplay } from "@/components/cards/flashcard-display"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, RotateCcw } from "lucide-react"
 import { Card } from "@/lib/types"
+import LoadingCat from "@/components/cat-loader"
 
 export default function LearnPage() {
   const params = useParams()
@@ -145,10 +146,7 @@ export default function LearnPage() {
   if (loading || cardsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin text-4xl mb-4">🐱</div>
-          <p className="text-gray-600 dark:text-gray-400">Lädt Karten...</p>
-        </div>
+        <LoadingCat />
       </div>
     )
   }

@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card as CardType } from "@/lib/types"
 import { Deck } from "@/lib/types"
 import Link from "next/link"
+import LoadingCat from "@/components/cat-loader"
 
 export default function DeckDetailPage() {
   const { fetchPublicDecks } = useCommunityDecks()
@@ -114,10 +115,7 @@ export default function DeckDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin text-4xl mb-4">🐱</div>
-          <p className="text-gray-600 dark:text-gray-400">Lädt Deck...</p>
-        </div>
+        <LoadingCat />
       </div>
     )
   }
@@ -230,9 +228,8 @@ export default function DeckDetailPage() {
 
             {/* Cards List */}
             {cardsLoading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin text-2xl mb-2">🐱</div>
-                <p className="text-gray-600 dark:text-gray-400">Lädt Karten...</p>
+              <div className="flex items-center justify-center py-8">
+                <LoadingCat />
               </div>
             ) : (
               <div className="space-y-2">

@@ -10,17 +10,10 @@ interface CreateDeckModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onCreateDeck: (name: string, description: string, isPublic: boolean) => Promise<void>
-  onAIGenerate?: (name: string) => void
   isLoading?: boolean
 }
 
-export const CreateDeckModal = ({
-  open,
-  onOpenChange,
-  onCreateDeck,
-  onAIGenerate,
-  isLoading = false,
-}: CreateDeckModalProps) => {
+export const CreateDeckModal = ({ open, onOpenChange, onCreateDeck, isLoading = false }: CreateDeckModalProps) => {
   const [deckName, setDeckName] = useState("")
   const [description, setDescription] = useState("")
   const [isPublic, setIsPublic] = useState(false)

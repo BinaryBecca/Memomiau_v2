@@ -61,14 +61,6 @@ export default function CommunityPage() {
               className="pl-10"
             />
           </div>
-          {user && (
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/deck/create">
-                <Wand2 className="w-4 h-4 mr-2" />
-                Mit KI erstellen
-              </Link>
-            </Button>
-          )}
         </div>
 
         {/* Decks Grid */}

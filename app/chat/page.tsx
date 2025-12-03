@@ -13,7 +13,6 @@ import {
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputFooter,
-  PromptInputTools,
   PromptInputBody,
 } from "@/components/ai-elements/prompt-input"
 import { Fragment, useState } from "react"
@@ -39,10 +38,20 @@ const ChatBotDemo = () => {
   return (
     <>
       {/* <SiteHeader title="Chat" /> */}
-      <div className="flex flex-1 flex-col">
-        <div className="@container/main flex  flex-1 flex-col gap-2">
-          <Conversation className="h-full">
+      <div className="flex flex-1 flex-col h-full">
+        <div className="@container/main flex flex-1 flex-col gap-3 p-4">
+          <Conversation className="flex-1 min-h-0">
             <ConversationContent>
+              {messages.length === 0 && (
+                <Message from="assistant">
+                  <MessageContent>
+                    <MessageResponse>
+                      {"Hallo! Ich bin MemoMiau 🐱. <br/> Wie kann ich dir beim Lernen mit Karteikarten helfen?"}
+                    </MessageResponse>
+                  </MessageContent>
+                </Message>
+              )}
+
               {messages.map((message) => (
                 <div key={message.id}>
                   {message.role === "assistant" &&
@@ -102,14 +111,22 @@ const ChatBotDemo = () => {
             </ConversationContent>
             <ConversationScrollButton />
           </Conversation>
-          <PromptInput onSubmit={handleSubmit}>
+          <PromptInput onSubmit={handleSubmit} className="mt-2">
             <PromptInputBody>
-              <PromptInputTextarea onChange={(e) => setInput(e.target.value)} value={input} />
+              <PromptInputTextarea
+                onChange={(e) => setInput(e.target.value)}
+                value={input}
+                placeholder="Stelle mir eine Frage…"
+              />
             </PromptInputBody>
             <PromptInputFooter>
-              <PromptInputTools>
-                <PromptInputSubmit disabled={!input && !status} status={status} />
-              </PromptInputTools>
+              <div className="flex w-full items-center justify-end">
+                <PromptInputSubmit
+                  className="ml-2 rounded-lg bg-[#f984dd] text-white hover:bg-[#e06bbf] border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                  disabled={!input && !status}
+                  status={status}
+                />
+              </div>
             </PromptInputFooter>
           </PromptInput>
         </div>

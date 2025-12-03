@@ -6,8 +6,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils"
 import type { FileUIPart, UIMessage } from "ai"
 import { ChevronLeftIcon, ChevronRightIcon, PaperclipIcon, XIcon } from "lucide-react"
+import Image from "next/image"
 import type { ComponentProps, HTMLAttributes, ReactElement } from "react"
-import { createContext, memo, useContext, useEffect, useState } from "react"
+import { createContext, memo, useContext, useEffect, useMemo, useState } from "react"
 import { Streamdown } from "streamdown"
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
@@ -17,8 +18,8 @@ export type MessageProps = HTMLAttributes<HTMLDivElement> & {
 export const Message = ({ className, from, ...props }: MessageProps) => (
   <div
     className={cn(
-      "group flex w-full max-w-[80%] flex-col gap-2",
-      from === "user" ? "is-user ml-auto justify-end" : "is-assistant",
+      "group flex w-full flex-col gap-2 mb-4",
+      from === "user" ? "is-user ml-auto max-w-[85%] items-end" : "is-assistant max-w-[90%] items-start",
       className
     )}
     {...props}
@@ -30,9 +31,9 @@ export type MessageContentProps = HTMLAttributes<HTMLDivElement>
 export const MessageContent = ({ children, className, ...props }: MessageContentProps) => (
   <div
     className={cn(
-      "is-user:dark flex w-fit flex-col gap-2 overflow-hidden text-sm",
-      "group-[.is-user]:ml-auto group-[.is-user]:rounded-lg group-[.is-user]:bg-secondary group-[.is-user]:px-4 group-[.is-user]:py-3 group-[.is-user]:text-foreground",
-      "group-[.is-assistant]:text-foreground",
+      "flex w-fit flex-col gap-2 overflow-hidden text-sm",
+      "group-[.is-user]:ml-auto group-[.is-user]:rounded-2xl group-[.is-user]:bg-slate-100 dark:group-[.is-user]:bg-slate-700 group-[.is-user]:px-4 group-[.is-user]:py-3 group-[.is-user]:text-slate-900 dark:group-[.is-user]:text-white",
+      "group-[.is-assistant]:text-slate-700 dark:group-[.is-assistant]:text-slate-200 group-[.is-assistant]:bg-transparent",
       className
     )}
     {...props}>
@@ -149,7 +150,7 @@ export type MessageBranchContentProps = HTMLAttributes<HTMLDivElement>
 
 export const MessageBranchContent = ({ children, ...props }: MessageBranchContentProps) => {
   const { currentBranch, setBranches, branches } = useMessageBranch()
-  const childrenArray = Array.isArray(children) ? children : [children]
+  const childrenArray = useMemo(() => (Array.isArray(children) ? children : [children]), [children])
 
   // Use useEffect to update branches when they change
   useEffect(() => {
@@ -168,11 +169,9 @@ export const MessageBranchContent = ({ children, ...props }: MessageBranchConten
   ))
 }
 
-export type MessageBranchSelectorProps = HTMLAttributes<HTMLDivElement> & {
-  from: UIMessage["role"]
-}
+export type MessageBranchSelectorProps = HTMLAttributes<HTMLDivElement>
 
-export const MessageBranchSelector = ({ className, from, ...props }: MessageBranchSelectorProps) => {
+export const MessageBranchSelector = ({ className, ...props }: MessageBranchSelectorProps) => {
   const { totalBranches } = useMessageBranch()
 
   // Don't render if there's only one branch
@@ -182,7 +181,7 @@ export const MessageBranchSelector = ({ className, from, ...props }: MessageBran
 
   return (
     <ButtonGroup
-      className="[&>*:not(:first-child)]:rounded-l-md [&>*:not(:last-child)]:rounded-r-md"
+      className={cn("[&>*:not(:first-child)]:rounded-l-md [&>*:not(:last-child)]:rounded-r-md", className)}
       orientation="horizontal"
       {...props}
     />
@@ -218,6 +217,7 @@ export const MessageBranchNext = ({ children, className, ...props }: MessageBran
       aria-label="Next branch"
       disabled={totalBranches <= 1}
       onClick={goToNext}
+      className={cn(className)}
       size="icon"
       type="button"
       variant="ghost"
@@ -268,7 +268,7 @@ export function MessageAttachment({ data, className, onRemove, ...props }: Messa
     <div className={cn("group relative size-24 overflow-hidden rounded-lg", className)} {...props}>
       {isImage ? (
         <>
-          <img
+          <Image
             alt={filename || "attachment"}
             className="size-full object-cover"
             height={100}

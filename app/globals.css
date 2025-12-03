@@ -30,9 +30,9 @@ body {
 .running-cat {
   position: fixed;
   left: -150px; /* start off-screen */
-  width: 100px;
-  height: auto;
-  animation: run-across 10s linear;
+  width: 120px;
+  height: 120px;
+  animation: run-across 15s linear;
   z-index: 9999;
   pointer-events: none;
 }

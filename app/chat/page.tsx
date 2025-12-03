@@ -16,7 +16,7 @@ import {
   PromptInputBody,
 } from "@/components/ai-elements/prompt-input"
 import { Fragment, useState } from "react"
-import { useChat } from "@ai-sdk/react"
+import { useChatContext } from "@/components/chat/ChatProvider"
 // supabase client not needed here (no sessionStorage persistence)
 import { CopyIcon, RefreshCcwIcon } from "lucide-react"
 import { Source, Sources, SourcesContent, SourcesTrigger } from "@/components/ai-elements/sources"
@@ -25,8 +25,8 @@ import { Loader } from "@/components/ai-elements/loader"
 // import { SiteHeader } from "@/components/site-header"
 const ChatBotDemo = () => {
   const [input, setInput] = useState("")
-  const { messages, sendMessage, status, regenerate } = useChat()
-  // chat messages are transient in memory; no sessionStorage persistence
+  const { messages, sendMessage, status, regenerate } = useChatContext()
+  // chat messages live in the ChatProvider so they survive modal unmounts
 
   const handleSubmit = (message: PromptInputMessage) => {
     const hasText = Boolean(message.text)

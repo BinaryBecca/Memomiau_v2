@@ -41,7 +41,7 @@ export const useCards = (deckId: string | undefined, userId: string | undefined)
           const status = statusesData.find((s) => s.card_id === card.id)
           return {
             ...card,
-            learning_status: status?.status || null,
+            learning_status: (status?.status as "green" | "yellow" | "red" | null) || null,
           }
         })
         setCards(cardsWithStatus)

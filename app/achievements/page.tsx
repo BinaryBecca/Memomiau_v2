@@ -5,8 +5,8 @@ import { useAuth } from "@/hooks/useAuth"
 import { useAchievements } from "@/hooks/useAchievements"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Progress } from "@/components/ui/progress"
 import { Calendar, Flame, BookOpen } from "lucide-react"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 import LoadingCat from "@/components/cat-loader"
 
 export default function AchievementsPage() {
@@ -100,45 +100,58 @@ export default function AchievementsPage() {
           {/* Time-based Stats */}
           <Card>
             <CardHeader>
-              <CardTitle>Gelernte Karten pro Zeitraum</CardTitle>
-              <CardDescription>Wie viele Karten du in verschiedenen Zeiträumen gelernt hast</CardDescription>
+              <CardTitle>Gelernte Karten pro</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="daily">Tag</TabsTrigger>
-                  <TabsTrigger value="weekly">Woche</TabsTrigger>
                   <TabsTrigger value="monthly">Monat</TabsTrigger>
+                  <TabsTrigger value="yearly">Jahr</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="daily" className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Heute</span>
-                      <span className="font-semibold">{stats.daily}</span>
-                    </div>
-                    <Progress value={Math.min(stats.daily, 100)} />
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="weekly" className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Diese Woche</span>
-                      <span className="font-semibold">{stats.weekly}</span>
-                    </div>
-                    <Progress value={Math.min(stats.weekly / 7, 100)} />
-                  </div>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={stats.dailyData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis
+                        dataKey="date"
+                        tickFormatter={(value) =>
+                          new Date(value).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" })
+                        }
+                      />
+                      <YAxis />
+                      <Tooltip
+                        labelFormatter={(value) => new Date(value).toLocaleDateString("de-DE")}
+                        formatter={(value) => [value, "Karten"]}
+                      />
+                      <Bar dataKey="count" fill="#8884d8" />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </TabsContent>
 
                 <TabsContent value="monthly" className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Diesen Monat</span>
-                      <span className="font-semibold">{stats.monthly}</span>
-                    </div>
-                    <Progress value={Math.min(stats.monthly / 10, 100)} />
-                  </div>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={stats.monthlyData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip formatter={(value) => [value, "Karten"]} />
+                      <Bar dataKey="count" fill="#82ca9d" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </TabsContent>
+
+                <TabsContent value="yearly" className="space-y-4">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={stats.yearlyData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="year" />
+                      <YAxis />
+                      <Tooltip formatter={(value) => [value, "Karten"]} />
+                      <Bar dataKey="count" fill="#ffc658" />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </TabsContent>
               </Tabs>
             </CardContent>
@@ -152,40 +165,73 @@ export default function AchievementsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
+                {/* Starter Badge */}
                 <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-950 rounded-lg">
                   <div className="text-3xl mb-2">🥇</div>
                   <p className="text-sm font-semibold">Starter</p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">✓ Erledigt</p>
                 </div>
 
-                <div className="text-center p-4 bg-gray-100 dark:bg-slate-800 rounded-lg opacity-50">
+                {/* Pro Badge */}
+                <div
+                  className={`text-center p-4 rounded-lg ${
+                    stats.totalCards >= 100 ? "bg-blue-50 dark:bg-blue-950" : "bg-gray-100 dark:bg-slate-800 opacity-50"
+                  }`}>
                   <div className="text-3xl mb-2">🥈</div>
                   <p className="text-sm font-semibold">Pro</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">100 Karten</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {stats.totalCards >= 100 ? "✓ Erledigt" : `${stats.totalCards}/100 Karten`}
+                  </p>
                 </div>
 
-                <div className="text-center p-4 bg-gray-100 dark:bg-slate-800 rounded-lg opacity-50">
+                {/* Master Badge */}
+                <div
+                  className={`text-center p-4 rounded-lg ${
+                    stats.totalCards >= 500
+                      ? "bg-purple-50 dark:bg-purple-950"
+                      : "bg-gray-100 dark:bg-slate-800 opacity-50"
+                  }`}>
                   <div className="text-3xl mb-2">🥉</div>
                   <p className="text-sm font-semibold">Master</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">500 Karten</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {stats.totalCards >= 500 ? "✓ Erledigt" : `${stats.totalCards}/500 Karten`}
+                  </p>
                 </div>
 
-                <div className="text-center p-4 bg-gray-100 dark:bg-slate-800 rounded-lg opacity-50">
-                  <div className="text-3xl mb-2">🔥</div>
+                {/* Streak Badge */}
+                <div
+                  className={`text-center p-4 rounded-lg ${
+                    stats.streak >= 7 ? "bg-orange-50 dark:bg-orange-950" : "bg-gray-100 dark:bg-slate-800 opacity-50"
+                  }`}>
+                  <div className="text-2xl mb-2">🔥</div>
                   <p className="text-sm font-semibold">Streak</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">7 Tage Streak</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {stats.streak >= 7 ? "✓ Erledigt" : `${stats.streak}/7 Tage Streak`}
+                  </p>
                 </div>
 
-                <div className="text-center p-4 bg-gray-100 dark:bg-slate-800 rounded-lg opacity-50">
-                  <div className="text-3xl mb-2">🏆</div>
-                  <p className="text-sm font-semibold">Champion</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Quiz Sieger</p>
+                {/* Streak Master Badge */}
+                <div
+                  className={`text-center p-4 rounded-lg ${
+                    stats.streak >= 30 ? "bg-red-50 dark:bg-red-950" : "bg-gray-100 dark:bg-slate-800 opacity-50"
+                  }`}>
+                  <div className="text-2xl mb-2">🔥🔥</div>
+                  <p className="text-sm font-semibold">Streak Master</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {stats.streak >= 30 ? "✓ Erledigt" : `${stats.streak}/30 Tage Streak`}
+                  </p>
                 </div>
 
-                <div className="text-center p-4 bg-gray-100 dark:bg-slate-800 rounded-lg opacity-50">
-                  <div className="text-3xl mb-2">👥</div>
-                  <p className="text-sm font-semibold">Sharer</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Decks teilen</p>
+                {/* Streak Master Badge */}
+                <div
+                  className={`text-center p-4 rounded-lg ${
+                    stats.streak >= 365 ? "bg-red-50 dark:bg-red-950" : "bg-gray-100 dark:bg-slate-800 opacity-50"
+                  }`}>
+                  <div className="text-2xl mb-2">🔥🔥🔥</div>
+                  <p className="text-sm font-semibold">Streak Slayer</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {stats.streak >= 365 ? "✓ Erledigt" : `${stats.streak}/365 Tage Streak`}
+                  </p>
                 </div>
               </div>
             </CardContent>

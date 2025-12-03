@@ -5,7 +5,7 @@ import { ButtonGroup, ButtonGroupText } from "@/components/ui/button-group"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import type { FileUIPart, UIMessage } from "ai"
-import { ChevronLeftIcon, PaperclipIcon, XIcon } from "lucide-react"
+import { ChevronLeftIcon, ChevronRightIcon, PaperclipIcon, XIcon } from "lucide-react"
 import type { ComponentProps, HTMLAttributes, ReactElement } from "react"
 import { createContext, memo, useContext, useEffect, useState } from "react"
 import { Streamdown } from "streamdown"
@@ -58,7 +58,7 @@ export const MessageAction = ({
   children,
   label,
   variant = "ghost",
-  size = "sm",
+  size = "icon",
   ...props
 }: MessageActionProps) => {
   const button = (
@@ -172,7 +172,7 @@ export type MessageBranchSelectorProps = HTMLAttributes<HTMLDivElement> & {
   from: UIMessage["role"]
 }
 
-export const MessageBranchSelector = ({ ...props }: MessageBranchSelectorProps) => {
+export const MessageBranchSelector = ({ className, from, ...props }: MessageBranchSelectorProps) => {
   const { totalBranches } = useMessageBranch()
 
   // Don't render if there's only one branch
@@ -199,7 +199,7 @@ export const MessageBranchPrevious = ({ children, ...props }: MessageBranchPrevi
       aria-label="Previous branch"
       disabled={totalBranches <= 1}
       onClick={goToPrevious}
-      size="sm"
+      size="icon"
       type="button"
       variant="ghost"
       {...props}>
@@ -210,7 +210,7 @@ export const MessageBranchPrevious = ({ children, ...props }: MessageBranchPrevi
 
 export type MessageBranchNextProps = ComponentProps<typeof Button>
 
-export const MessageBranchNext = ({ ...props }: MessageBranchNextProps) => {
+export const MessageBranchNext = ({ children, className, ...props }: MessageBranchNextProps) => {
   const { goToNext, totalBranches } = useMessageBranch()
 
   return (
@@ -218,10 +218,12 @@ export const MessageBranchNext = ({ ...props }: MessageBranchNextProps) => {
       aria-label="Next branch"
       disabled={totalBranches <= 1}
       onClick={goToNext}
-      size="sm"
+      size="icon"
       type="button"
       variant="ghost"
-      {...props}></Button>
+      {...props}>
+      {children ?? <ChevronRightIcon size={14} />}
+    </Button>
   )
 }
 

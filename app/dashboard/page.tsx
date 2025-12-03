@@ -14,32 +14,11 @@ import LoadingCat from "@/components/cat-loader"
 
 export default function DashboardPage() {
   const { user } = useAuth()
-  const { decks, loading, createDeck, deleteDeck, updateDeck } = useDecks(user?.id)
+  const { decks, cardCounts, loading, refetch, createDeck, deleteDeck, updateDeck } = useDecks(user?.id)
   const [modalOpen, setModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null)
-  const [cardCounts, setCardCounts] = useState<Record<string, number>>({})
   const [showLoader, setShowLoader] = useState(true)
-  const supabase = createClient()
-
-  // Decks und Kartenanzahlen laden
-  useEffect(() => {
-    if (!user?.id || decks.length === 0) return
-
-    const fetchCounts = async () => {
-      const counts: Record<string, number> = {}
-
-      for (const deck of decks) {
-        const { count, error } = await supabase.from("cards").select("*", { count: "exact" }).eq("deck_id", deck.id)
-
-        if (!error) counts[deck.id] = count || 0
-      }
-
-      setCardCounts(counts)
-    }
-
-    fetchCounts()
-  }, [user?.id, decks, supabase])
 
   // Loader für mindestens 3 Sekunden anzeigen
   useEffect(() => {
@@ -61,7 +40,7 @@ export default function DashboardPage() {
 
     try {
       const newDeck = await createDeck(name, description, isPublic)
-      if (newDeck) setCardCounts((prev) => ({ ...prev, [newDeck.id]: 0 }))
+      // cardCounts werden automatisch im Hook aktualisiert
     } catch (error) {
       console.error("Error creating deck:", error)
     }
@@ -70,11 +49,7 @@ export default function DashboardPage() {
   const handleDeleteDeck = async (deckId: string) => {
     try {
       await deleteDeck(deckId)
-      setCardCounts((prev) => {
-        const newCounts = { ...prev }
-        delete newCounts[deckId]
-        return newCounts
-      })
+      // cardCounts werden automatisch im Hook aktualisiert
     } catch (error) {
       console.error("Error deleting deck:", error)
     }

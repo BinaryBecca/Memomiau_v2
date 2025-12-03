@@ -23,6 +23,8 @@ export const useCards = (deckId: string | undefined, userId: string | undefined)
       if (cardsError) throw cardsError
       const fetchedCards = cardsData as Card[]
 
+      console.log(`Fetched ${fetchedCards.length} cards for deck ${deckId}`)
+
       // Wenn userId vorhanden, auch Lernstatus laden
       if (userId) {
         const cardIds = fetchedCards.map((card) => card.id)
@@ -39,7 +41,7 @@ export const useCards = (deckId: string | undefined, userId: string | undefined)
           const status = statusesData.find((s) => s.card_id === card.id)
           return {
             ...card,
-            learning_status: status?.status || null,
+            learning_status: (status?.status as "green" | "yellow" | "red" | null) || null,
           }
         })
         setCards(cardsWithStatus)
@@ -72,7 +74,7 @@ export const useCards = (deckId: string | undefined, userId: string | undefined)
 
       if (error) throw error
 
-      setCards((prev) => [{ ...data as Card, learning_status: null }, ...prev])
+      setCards((prev) => [{ ...(data as Card), learning_status: null }, ...prev])
       return data
     } catch (error) {
       throw error

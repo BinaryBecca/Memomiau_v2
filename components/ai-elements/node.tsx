@@ -1,4 +1,4 @@
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { Handle, Position } from "@xyflow/react"
 import type { ComponentProps } from "react"
@@ -31,10 +31,6 @@ export const NodeTitle = (props: NodeTitleProps) => <CardTitle {...props} />
 export type NodeDescriptionProps = ComponentProps<typeof CardDescription>
 
 export const NodeDescription = (props: NodeDescriptionProps) => <CardDescription {...props} />
-
-export type NodeActionProps = ComponentProps<typeof CardAction>
-
-export const NodeAction = (props: NodeActionProps) => <CardAction {...props} />
 
 export type NodeContentProps = ComponentProps<typeof CardContent>
 

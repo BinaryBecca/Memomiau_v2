@@ -17,6 +17,7 @@ import {
 } from "@/components/ai-elements/prompt-input"
 import { Fragment, useState } from "react"
 import { useChat } from "@ai-sdk/react"
+// supabase client not needed here (no sessionStorage persistence)
 import { CopyIcon, RefreshCcwIcon } from "lucide-react"
 import { Source, Sources, SourcesContent, SourcesTrigger } from "@/components/ai-elements/sources"
 import { Reasoning, ReasoningContent, ReasoningTrigger } from "@/components/ai-elements/reasoning"
@@ -25,6 +26,8 @@ import { Loader } from "@/components/ai-elements/loader"
 const ChatBotDemo = () => {
   const [input, setInput] = useState("")
   const { messages, sendMessage, status, regenerate } = useChat()
+  // chat messages are transient in memory; no sessionStorage persistence
+
   const handleSubmit = (message: PromptInputMessage) => {
     const hasText = Boolean(message.text)
     if (!hasText) {
@@ -35,6 +38,8 @@ const ChatBotDemo = () => {
     })
     setInput("")
   }
+
+  // messages are not persisted; kept only in memory while the page is open
   return (
     <>
       {/* <SiteHeader title="Chat" /> */}
@@ -111,6 +116,7 @@ const ChatBotDemo = () => {
             </ConversationContent>
             <ConversationScrollButton />
           </Conversation>
+          {/* Persist messages to sessionStorage when they change (keyed by session token) */}
           <PromptInput onSubmit={handleSubmit} className="mt-2">
             <PromptInputBody>
               <PromptInputTextarea

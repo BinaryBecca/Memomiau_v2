@@ -23,8 +23,6 @@ export const useCards = (deckId: string | undefined, userId: string | undefined)
       if (cardsError) throw cardsError
       const fetchedCards = cardsData as Card[]
 
-      console.log(`Fetched ${fetchedCards.length} cards for deck ${deckId}`)
-
       // Wenn userId vorhanden, auch Lernstatus laden
       if (userId) {
         const cardIds = fetchedCards.map((card) => card.id)

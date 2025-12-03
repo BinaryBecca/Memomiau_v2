@@ -30,7 +30,6 @@ export default function QuizModePage() {
     setIsLoading(true)
     try {
       // TODO: Implement quiz session creation in Supabase
-      console.log("Creating quiz session:", sessionName)
 
       // Simulate loading
       await new Promise((resolve) => setTimeout(resolve, 1000))

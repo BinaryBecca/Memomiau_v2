@@ -74,7 +74,7 @@ export const useDecks = (userId: string | undefined) => {
         return data
       } catch (error) {
         console.error("Error creating deck:", error)
-        throw error
+        throw new Error("Failed to create deck")
       }
     },
     [userId, supabase]
@@ -95,7 +95,7 @@ export const useDecks = (userId: string | undefined) => {
         })
       } catch (error) {
         console.error("Error deleting deck:", error)
-        throw error
+        throw new Error("Failed to delete deck")
       }
     },
     [userId, supabase]
@@ -135,7 +135,7 @@ export const useDecks = (userId: string | undefined) => {
         return data
       } catch (error) {
         console.error("Error updating deck:", error)
-        throw error
+        throw new Error("Failed to update deck")
       }
     },
     [userId, supabase]

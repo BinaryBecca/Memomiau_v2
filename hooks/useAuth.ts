@@ -62,8 +62,6 @@ export const useAuth = () => {
     avatarUrl: string | null
   ) => {
     try {
-      console.log("Starting signup with:", { email, firstName, lastName, username })
-
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -76,16 +74,11 @@ export const useAuth = () => {
         },
       })
 
-      console.log("Auth signup response:", { data, error })
-
       if (error) {
-        console.error("Auth signup error:", error)
         throw error
       }
 
       if (data.user) {
-        console.log("Profile created automatically by trigger for user:", data.user.id)
-
         // Update the profile with additional data (username, avatar, etc.)
         // The trigger automatically creates a basic profile with id and email
         const { error: updateError } = await supabase
@@ -104,7 +97,6 @@ export const useAuth = () => {
           throw updateError
         }
 
-        console.log("Profile updated successfully for user:", data.user.id)
         router.push("/dashboard")
       }
     } catch (error) {

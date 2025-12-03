@@ -116,13 +116,21 @@ export default function AchievementsPage() {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis
                         dataKey="date"
-                        tickFormatter={(value) =>
-                          new Date(value).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" })
-                        }
+                        tickFormatter={(value) => {
+                          const date = new Date(value)
+                          return `${date.getDate().toString().padStart(2, "0")}.${(date.getMonth() + 1)
+                            .toString()
+                            .padStart(2, "0")}`
+                        }}
                       />
                       <YAxis />
                       <Tooltip
-                        labelFormatter={(value) => new Date(value).toLocaleDateString("de-DE")}
+                        labelFormatter={(value) => {
+                          const date = new Date(value)
+                          return `${date.getDate().toString().padStart(2, "0")}.${(date.getMonth() + 1)
+                            .toString()
+                            .padStart(2, "0")}.${date.getFullYear()}`
+                        }}
                         formatter={(value) => [value, "Karten"]}
                       />
                       <Bar dataKey="count" fill="#8884d8" />

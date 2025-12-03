@@ -28,6 +28,7 @@ export default function AccountPage() {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const [showNotification, setShowNotification] = useState(false)
+  const [notificationTimeout, setNotificationTimeout] = useState<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     if (profile) {
@@ -39,6 +40,15 @@ export default function AccountPage() {
       })
     }
   }, [profile])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (notificationTimeout) {
+        clearTimeout(notificationTimeout)
+      }
+    }
+  }, [notificationTimeout])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -87,17 +97,33 @@ export default function AccountPage() {
       if (fetchError) throw fetchError
 
       if (updatedProfile && profile) {
-        Object.assign(profile, updatedProfile)
+        // Vermeide direkte Mutation des profile-Objekts für bessere Hydration
+        // Stattdessen nur die lokalen States aktualisieren
+        setFormData({
+          firstName: updatedProfile.first_name || "",
+          lastName: updatedProfile.last_name || "",
+          username: updatedProfile.username,
+          email: updatedProfile.email,
+        })
       }
 
       setSuccess("Profilbild erfolgreich aktualisiert!")
       setShowNotification(true)
       setRandomAvatarUrl(null)
       setEditMode(false)
-      setTimeout(() => {
+
+      // Clear existing timeout if any
+      if (notificationTimeout) {
+        clearTimeout(notificationTimeout)
+      }
+
+      // Set new timeout
+      const timeout = setTimeout(() => {
         setShowNotification(false)
         setSuccess("")
+        setNotificationTimeout(null)
       }, 2500)
+      setNotificationTimeout(timeout)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Fehler beim Speichern")
     } finally {
@@ -140,18 +166,24 @@ export default function AccountPage() {
           username: updatedProfile.username,
           email: updatedProfile.email,
         })
-        // Vorschau: Profile-Objekt updaten (nur falls nicht automatisch)
-        if (profile) {
-          Object.assign(profile, updatedProfile)
-        }
+        // Entferne direkte Mutation des profile-Objekts
       }
       setSuccess("Profil erfolgreich aktualisiert!")
       setEditMode(false)
       setShowNotification(true)
-      setTimeout(() => {
+
+      // Clear existing timeout if any
+      if (notificationTimeout) {
+        clearTimeout(notificationTimeout)
+      }
+
+      // Set new timeout
+      const timeout = setTimeout(() => {
         setShowNotification(false)
         setSuccess("")
+        setNotificationTimeout(null)
       }, 2500)
+      setNotificationTimeout(timeout)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Fehler beim Aktualisieren")
     } finally {
@@ -161,41 +193,47 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 dark:from-slate-950 dark:to-slate-900">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="flex items-center mb-8">
+        <div className="flex items-center mb-6 sm:mb-8">
           <button
             onClick={() => router.back()}
-            className="p-2 hover:bg-gray-200 dark:hover:bg-slate-800 rounded-lg transition mr-4">
+            className="p-2 hover:bg-gray-200 dark:hover:bg-slate-800 rounded-lg transition mr-3 sm:mr-4">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Konto</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Konto</h1>
         </div>
 
         {/* Profil-Vorschau */}
-        <div className="flex items-start gap-6 p-8 mb-8 bg-white dark:bg-slate-900 rounded-xl shadow border border-gray-200 dark:border-slate-800">
-          <Avatar className="w-32 h-32 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 p-4 sm:p-8 mb-8 bg-white dark:bg-slate-900 rounded-xl shadow border border-gray-200 dark:border-slate-800">
+          <Avatar className="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 mx-auto sm:mx-0">
             <AvatarImage src={randomAvatarUrl || profile?.avatar_url || ""} />
             <AvatarFallback>{profile?.username?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
           </Avatar>
-          <div className="flex flex-col gap-2 flex-1">
+          <div className="flex flex-col gap-2 flex-1 w-full sm:w-auto">
             {editMode ? (
               <form onSubmit={handleSubmit} className="flex flex-col gap-2" autoComplete="off">
                 {/* Avatar-Generierung */}
                 <div className="mb-3 pb-3 border-b border-gray-200 dark:border-slate-700">
                   <Label className="text-sm mb-2 block">Profilbild ändern</Label>
-                  <div className="flex gap-2 items-center">
+                  <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
                     <Button
                       type="button"
                       onClick={handleGenerateRandomAvatar}
                       disabled={isLoadingRandom || isLoading}
                       variant="outline"
-                      size="sm">
+                      size="sm"
+                      className="w-full sm:w-auto">
                       {isLoadingRandom ? "Lädt..." : "Zufälliges Katzenbild"}
                     </Button>
                     {randomAvatarUrl && (
-                      <>
-                        <Button type="button" onClick={handleSaveRandomAvatar} disabled={isLoading} size="sm">
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <Button
+                          type="button"
+                          onClick={handleSaveRandomAvatar}
+                          disabled={isLoading}
+                          size="sm"
+                          className="w-full sm:w-auto">
                           Übernehmen
                         </Button>
                         <Button
@@ -203,10 +241,11 @@ export default function AccountPage() {
                           onClick={() => setRandomAvatarUrl(null)}
                           disabled={isLoading}
                           variant="outline"
-                          size="sm">
+                          size="sm"
+                          className="w-full sm:w-auto">
                           Verwerfen
                         </Button>
-                      </>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -216,10 +255,10 @@ export default function AccountPage() {
                   value={formData.username}
                   onChange={handleChange}
                   placeholder="Benutzername"
-                  className="text-2xl font-bold"
+                  className="text-xl"
                   disabled={isLoading}
                 />
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Input
                     name="firstName"
                     value={formData.firstName}
@@ -239,8 +278,8 @@ export default function AccountPage() {
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">{formData.email || user?.email || "-"}</div>
 
-                <div className="flex gap-2 mt-2">
-                  <Button type="submit" disabled={isLoading} size="sm">
+                <div className="flex flex-col sm:flex-row gap-2 mt-2">
+                  <Button type="submit" disabled={isLoading} size="sm" className="w-full sm:w-auto">
                     {isLoading ? "Speichern..." : "Speichern"}
                   </Button>
                   <Button
@@ -252,7 +291,8 @@ export default function AccountPage() {
                       setRandomAvatarUrl(null)
                       setError("")
                     }}
-                    disabled={isLoading}>
+                    disabled={isLoading}
+                    className="w-full sm:w-auto">
                     Abbrechen
                   </Button>
                 </div>
@@ -263,30 +303,35 @@ export default function AccountPage() {
                 )}
               </form>
             ) : (
-              <>
-                <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="text-2xl font-bold text-gray-900 dark:text-white">{profile?.username || "-"}</div>
-                  <Button size="sm" variant="outline" onClick={() => setEditMode(true)}>
-                    Bearbeiten
-                  </Button>
                 </div>
-                <div className="text-base text-gray-700 dark:text-gray-300">
+                <div className="text-base text-gray-700 dark:text-gray-300 pb-2">
                   {profile?.first_name || "-"} {profile?.last_name || "-"}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">{profile?.email || user?.email || "-"}</div>
-                {showNotification && (
-                  <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2 bg-green-600 text-white rounded shadow-lg animate-fade-in-out">
-                    {success}
-                  </div>
-                )}
-              </>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setEditMode(true)}
+                  className="self-start sm:self-auto">
+                  Bearbeiten
+                </Button>
+              </div>
             )}
           </div>
         </div>
 
+        {/* Success Notification */}
+        {showNotification && (
+          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 bg-green-600 text-white rounded shadow-lg text-center">
+            {success}
+          </div>
+        )}
+
         {/* Logout */}
-        <div className="mt-6">
-          <Button onClick={signOut} className="w-full">
+        <div className="mt-6 sm:mt-8">
+          <Button onClick={signOut} className="w-full sm:w-auto">
             Abmelden
           </Button>
         </div>

@@ -33,6 +33,8 @@ export const useAchievements = () => {
 
   // Load stats from localStorage
   const loadFromStorage = useCallback(() => {
+    if (typeof window === "undefined") return null
+
     const key = getStorageKey()
     if (!key) return null
 
@@ -48,6 +50,8 @@ export const useAchievements = () => {
   // Save stats to localStorage
   const saveToStorage = useCallback(
     (statsData: typeof stats) => {
+      if (typeof window === "undefined") return
+
       const key = getStorageKey()
       if (!key) return
 
@@ -152,7 +156,7 @@ export const useAchievements = () => {
         const monthlyData = []
         for (let i = 0; i < 12; i++) {
           const date = new Date(today.getFullYear(), today.getMonth() - i, 1)
-          const monthStr = date.toLocaleDateString("de-DE", { month: "short", year: "numeric" })
+          const monthStr = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, "0")}`
           const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1)
           const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0)
           const count = learningTimestamps.filter((ts) => {

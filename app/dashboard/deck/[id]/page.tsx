@@ -63,8 +63,7 @@ export default function DeckDetailPage() {
     try {
       setDeletingCardId(cardId)
       await deleteCard(cardId)
-    } catch (error) {
-      console.error("Error deleting card:", error)
+    } catch {
       alert("Fehler beim Löschen der Karte")
     } finally {
       setDeletingCardId(null)
@@ -80,8 +79,8 @@ export default function DeckDetailPage() {
     try {
       await updateCard(cardId, { front, back })
       setEditModalOpen(false)
-    } catch (error) {
-      console.error("Error updating card:", error)
+    } catch {
+      // Error handling is done in the hook
     }
   }
 

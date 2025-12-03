@@ -90,16 +90,7 @@ export const Navbar = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-white dark:bg-slate-900">
                   {/* Mobile Navigation Links */}
-                  <div className="block md:hidden">
-                    {/* Tablet: md bis lg auch Dropdown */}
-                    <div className="block md:block lg:hidden">
-                      {NAVIGATION_ITEMS.map((item) => (
-                        <DropdownMenuItem asChild key={item.href}>
-                          <Link href={item.href}>{item.label}</Link>
-                        </DropdownMenuItem>
-                      ))}
-                      <DropdownMenuSeparator />
-                    </div>
+                  <div className="block lg:hidden">
                     {NAVIGATION_ITEMS.map((item) => (
                       <DropdownMenuItem asChild key={item.href}>
                         <Link href={item.href}>{item.label}</Link>

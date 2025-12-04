@@ -8,8 +8,10 @@ interface Cat {
   x: number
   y: number
   speed: number
-  direction: "left" | "right"
+  direction: "N" | "NE" | "E" | "SE" | "S" | "SW" | "W" | "NW"
+  mode: "entering" | "bouncing"
   colliding?: boolean
+  size: number // Size in pixels (width and height)
 }
 
 interface Explosion {
@@ -19,20 +21,177 @@ interface Explosion {
   timestamp: number
 }
 
+// Helper function to get random cat size
+const getRandomCatSize = (): number => {
+  // Random size between 80px and 200px for more variety (added 2 larger models)
+  return Math.random() * 120 + 80
+}
+
+// Helper function to get cat speed based on size (smaller cats are faster)
+const getCatSpeed = (size: number): number => {
+  // Base speed between 8 and 22, with size influence
+  // Smaller cats (80px) get +4 speed bonus, larger cats (160px) get -4 speed penalty
+  const sizeBonus = ((160 - size) / 80) * 8 - 4 // -4 to +4 range
+  return Math.random() * 10 + 10 + sizeBonus
+}
+
+// Helper function to get random direction
+const getRandomDirection = (): Cat["direction"] => {
+  const directions: Cat["direction"][] = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+  return directions[Math.floor(Math.random() * directions.length)]
+}
+
+// Helper function to get random bounce direction based on touched edge
+const getRandomBounceDirection = (
+  currentDirection: Cat["direction"],
+  touchedEdge: "left" | "right" | "top" | "bottom"
+): Cat["direction"] => {
+  // Get possible directions that would bounce away from the touched edge
+  let possibleDirections: Cat["direction"][] = []
+
+  switch (touchedEdge) {
+    case "left": // Touched left edge - prefer directions that go right
+      possibleDirections = ["E", "NE", "SE"]
+      break
+    case "right": // Touched right edge - prefer directions that go left
+      possibleDirections = ["W", "NW", "SW"]
+      break
+    case "top": // Touched top edge - prefer directions that go down
+      possibleDirections = ["S", "SE", "SW"]
+      break
+    case "bottom": // Touched bottom edge - prefer directions that go up
+      possibleDirections = ["N", "NE", "NW"]
+      break
+  }
+
+  // If we only have a few options, add some more variety
+  if (possibleDirections.length < 5) {
+    // Add some diagonal directions that aren't directly opposite
+    const allDirections: Cat["direction"][] = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+    possibleDirections = [...possibleDirections, ...allDirections.filter((d) => !possibleDirections.includes(d))]
+  }
+
+  // Remove the current direction to avoid getting stuck
+  possibleDirections = possibleDirections.filter((d) => d !== currentDirection)
+
+  return possibleDirections[Math.floor(Math.random() * possibleDirections.length)]
+}
+
+// Helper functions for 8-directional movement
+const getDirectionConfig = (direction: Cat["direction"]) => {
+  const screenWidth = window.innerWidth
+  const screenHeight = window.innerHeight
+
+  switch (direction) {
+    case "N": // North - coming from top
+      return {
+        startX: Math.random() * screenWidth,
+        startY: -120,
+        deltaX: 0,
+        deltaY: 1, // moving down
+        resetCondition: (x: number, y: number) => y > screenHeight + 150,
+        resetX: Math.random() * screenWidth,
+        resetY: -120,
+      }
+    case "NE": // Northeast - coming from top-right
+      return {
+        startX: screenWidth + 120,
+        startY: -120,
+        deltaX: -1, // moving left
+        deltaY: 1, // moving down
+        resetCondition: (x: number, y: number) => x < -150 || y > screenHeight + 150,
+        resetX: screenWidth + 120,
+        resetY: -120,
+      }
+    case "E": // East - coming from right
+      return {
+        startX: screenWidth + 120,
+        startY: Math.random() * screenHeight,
+        deltaX: -1, // moving left
+        deltaY: 0,
+        resetCondition: (x: number, y: number) => {
+          void y
+          return x < -150
+        },
+        resetX: screenWidth + 120,
+        resetY: Math.random() * screenHeight,
+      }
+    case "SE": // Southeast - coming from bottom-right
+      return {
+        startX: screenWidth + 120,
+        startY: screenHeight + 120,
+        deltaX: -1, // moving left
+        deltaY: -1, // moving up
+        resetCondition: (x: number, y: number) => x < -150 || y < -150,
+        resetX: screenWidth + 120,
+        resetY: screenHeight + 120,
+      }
+    case "S": // South - coming from bottom
+      return {
+        startX: Math.random() * screenWidth,
+        startY: screenHeight + 120,
+        deltaX: 0,
+        deltaY: -1, // moving up
+        resetCondition: (x: number, y: number) => y < -150,
+        resetX: Math.random() * screenWidth,
+        resetY: screenHeight + 120,
+      }
+    case "SW": // Southwest - coming from bottom-left
+      return {
+        startX: -120,
+        startY: screenHeight + 120,
+        deltaX: 1, // moving right
+        deltaY: -1, // moving up
+        resetCondition: (x: number, y: number) => x > screenWidth + 150 || y < -150,
+        resetX: -120,
+        resetY: screenHeight + 120,
+      }
+    case "W": // West - coming from left
+      return {
+        startX: -120,
+        startY: Math.random() * screenHeight,
+        deltaX: 1, // moving right
+        deltaY: 0,
+        resetCondition: (x: number, y: number) => {
+          void y
+          return x > screenWidth + 150
+        },
+        resetX: -120,
+        resetY: Math.random() * screenHeight,
+      }
+    case "NW": // Northwest - coming from top-left
+      return {
+        startX: -120,
+        startY: -120,
+        deltaX: 1, // moving right
+        deltaY: 1, // moving down
+        resetCondition: (x: number, y: number) => x > screenWidth + 150 || y > screenHeight + 150,
+        resetX: -120,
+        resetY: -120,
+      }
+  }
+}
+
 const RunningCat = ({
   cat,
   onClick,
   onPositionUpdate,
+  onModeChange,
+  onDirectionChange,
   sharedAnimationData,
   catRefs,
 }: {
   cat: Cat
   onClick: (id: number) => void
   onPositionUpdate: (id: number, x: number, y: number) => void
+  onModeChange: (id: number, mode: "entering" | "bouncing") => void
+  onDirectionChange: (id: number, direction: Cat["direction"]) => void
   sharedAnimationData: unknown
   catRefs: React.MutableRefObject<Record<number, HTMLDivElement | null>>
 }) => {
-  const [currentX, setCurrentX] = useState(cat.direction === "left" ? -150 : window.innerWidth + 150)
+  const config = getDirectionConfig(cat.direction)
+  const [currentX, setCurrentX] = useState(config.startX)
+  const [currentY, setCurrentY] = useState(config.startY)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Register this cat's ref in the parent component's catRefs
@@ -48,33 +207,103 @@ const RunningCat = ({
 
   useEffect(() => {
     const moveCat = () => {
+      const screenWidth = window.innerWidth
+      const screenHeight = window.innerHeight
+      const moveDistance = (screenWidth + 300) / (cat.speed * 100) // Base movement speed - slightly slower for better control
+
       setCurrentX((prevX) => {
-        const newX =
-          cat.direction === "left"
-            ? prevX + (window.innerWidth + 300) / (cat.speed * 60) // Move right
-            : prevX - (window.innerWidth + 300) / (cat.speed * 60) // Move left
+        let newX = prevX + config.deltaX * moveDistance
+        setCurrentY((prevY) => {
+          let newY = prevY + config.deltaY * moveDistance
 
-        // Update position for collision detection immediately
-        if (containerRef.current) {
-          const rect = containerRef.current.getBoundingClientRect()
-          onPositionUpdate(cat.id, rect.left, rect.top)
-        }
+          // Check if cat has entered the screen (for entering mode)
+          const isInScreen = newX >= 0 && newX <= screenWidth && newY >= 0 && newY <= screenHeight
 
-        // Reset position when off-screen
-        if (
-          (cat.direction === "left" && newX > window.innerWidth + 150) ||
-          (cat.direction === "right" && newX < -150)
-        ) {
-          return cat.direction === "left" ? -150 : window.innerWidth + 150
-        }
+          if (cat.mode === "entering" && isInScreen) {
+            // Cat has entered the screen, switch to bouncing mode
+            setTimeout(() => onModeChange(cat.id, "bouncing"), 0)
+          }
 
+          // Handle bouncing off edges (only in bouncing mode)
+          if (cat.mode === "bouncing") {
+            let bounced = false
+
+            // Clamp X position and reverse direction if needed
+            if (newX <= 0) {
+              newX = 5
+              bounced = true
+            } else if (newX >= screenWidth) {
+              newX = screenWidth - 5
+              bounced = true
+            }
+
+            // Clamp Y position and reverse direction if needed
+            if (newY <= 0) {
+              newY = 5
+              bounced = true
+            } else if (newY >= screenHeight) {
+              newY = screenHeight - 5
+              bounced = true
+            }
+
+            // If bounced off any edge, get a new random direction
+            if (bounced) {
+              // Determine which edge was hit based on current position
+              let touchedEdge: "left" | "right" | "top" | "bottom" = "left"
+              if (newX >= screenWidth - 10) touchedEdge = "right"
+              else if (newY <= 10) touchedEdge = "top"
+              else if (newY >= screenHeight - 10) touchedEdge = "bottom"
+
+              const newDirection = getRandomBounceDirection(cat.direction, touchedEdge)
+              setTimeout(() => onDirectionChange(cat.id, newDirection), 0)
+            }
+          }
+
+          // Safety net: Reset cat if it goes too far outside screen bounds
+          if (config.resetCondition(newX, newY)) {
+            newX = config.resetX
+            newY = config.resetY
+            // Reset to entering mode when respawning
+            setTimeout(() => onModeChange(cat.id, "entering"), 0)
+          }
+
+          // Update position for collision detection immediately
+          if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect()
+            onPositionUpdate(cat.id, rect.left, rect.top)
+          }
+
+          return newY
+        })
         return newX
       })
     }
 
-    const interval = setInterval(moveCat, 16) // ~60fps
+    const interval = setInterval(moveCat, 24) // ~40fps on mobile for better performance
     return () => clearInterval(interval)
-  }, [cat.id, cat.direction, cat.speed, onPositionUpdate])
+  }, [cat.id, cat.direction, cat.speed, cat.mode, onPositionUpdate, onModeChange, onDirectionChange, config])
+
+  // Calculate rotation based on direction for visual feedback
+  const getRotation = (direction: Cat["direction"]) => {
+    switch (direction) {
+      case "N":
+        return "rotate(0deg)"
+      case "NE":
+        return "rotate(45deg)"
+      case "E":
+        return "rotate(90deg)"
+      case "SE":
+        return "rotate(135deg)"
+      case "S":
+        return "rotate(180deg)"
+      case "SW":
+        return "rotate(225deg)"
+      case "W":
+        return "rotate(270deg)"
+      case "NW":
+        return "rotate(315deg)"
+    }
+  }
 
   if (!sharedAnimationData) {
     return (
@@ -83,12 +312,12 @@ const RunningCat = ({
         style={{
           position: "fixed",
           left: `${currentX}px`,
-          top: `${cat.y}vh`,
-          width: "120px",
-          height: "120px",
+          top: `${currentY}px`,
+          width: `${cat.size}px`,
+          height: `${cat.size}px`,
           cursor: "pointer",
           zIndex: 9999,
-          transform: cat.direction === "right" ? "scaleX(-1)" : "none",
+          transform: getRotation(cat.direction),
           opacity: cat.colliding ? 0.3 : 1,
           transition: cat.colliding ? "opacity 0.2s ease-in-out" : "none",
         }}
@@ -104,17 +333,22 @@ const RunningCat = ({
       style={{
         position: "fixed",
         left: `${currentX}px`,
-        top: `${cat.y}vh`,
-        width: "120px",
-        height: "120px",
+        top: `${currentY}px`,
+        width: `${cat.size}px`,
+        height: `${cat.size}px`,
         cursor: "pointer",
         zIndex: 9999,
-        transform: cat.direction === "right" ? "scaleX(-1)" : "none",
+        transform: getRotation(cat.direction),
         opacity: cat.colliding ? 0.3 : 1,
         transition: cat.colliding ? "opacity 0.2s ease-in-out" : "none",
       }}
       onClick={() => onClick(cat.id)}>
-      <Lottie animationData={sharedAnimationData} loop={true} autoplay={true} style={{ width: 120, height: 120 }} />
+      <Lottie
+        animationData={sharedAnimationData}
+        loop={true}
+        autoplay={true}
+        style={{ width: cat.size, height: cat.size }}
+      />
     </div>
   )
 }
@@ -203,13 +437,16 @@ export const CatMode = () => {
 
   // Initialize with one cat
   useEffect(() => {
+    const size = getRandomCatSize()
     setCats([
       {
         id: 1,
         x: -150,
         y: Math.random() * 80 + 10,
-        speed: Math.random() * 10 + 10,
-        direction: Math.random() > 0.5 ? "left" : "right",
+        speed: getCatSpeed(size),
+        direction: getRandomDirection(),
+        mode: "entering",
+        size: size,
       },
     ])
   }, [])
@@ -223,8 +460,11 @@ export const CatMode = () => {
 
     // Double the number of cats (with limit to prevent performance issues)
     setCats((prevCats) => {
-      if (prevCats.length >= 15) {
-        // Max 15 cats to prevent performance issues
+      const isMobile = window.innerWidth < 768
+      const maxCats = isMobile ? 8 : 15 // Fewer cats on mobile for performance
+
+      if (prevCats.length >= maxCats) {
+        // Max cats reached for this device type
         return prevCats
       }
 
@@ -233,13 +473,16 @@ export const CatMode = () => {
         // Keep existing cat
         newCats.push(cat)
         // Add a new cat only if under limit
-        if (newCats.length < 15) {
+        if (newCats.length < (window.innerWidth < 768 ? 8 : 15)) {
+          const size = getRandomCatSize()
           newCats.push({
             id: Date.now() + Math.random(),
             x: -150,
             y: Math.random() * 80 + 10,
-            speed: Math.random() * 10 + 10,
-            direction: Math.random() > 0.5 ? "left" : "right",
+            speed: getCatSpeed(size),
+            direction: getRandomDirection(),
+            mode: "entering",
+            size: size,
           })
         }
       })
@@ -254,14 +497,25 @@ export const CatMode = () => {
     void y
   }
 
+  const handleModeChange = (id: number, mode: "entering" | "bouncing") => {
+    setCats((prevCats) => prevCats.map((cat) => (cat.id === id ? { ...cat, mode } : cat)))
+  }
+
+  const handleDirectionChange = (id: number, direction: Cat["direction"]) => {
+    setCats((prevCats) => prevCats.map((cat) => (cat.id === id ? { ...cat, direction } : cat)))
+  }
+
   const resetCats = () => {
+    const size = getRandomCatSize()
     setCats([
       {
         id: Date.now(),
         x: -150,
         y: Math.random() * 80 + 10,
-        speed: Math.random() * 10 + 10,
-        direction: Math.random() > 0.5 ? "left" : "right",
+        speed: getCatSpeed(size),
+        direction: getRandomDirection(),
+        mode: "entering",
+        size: size,
       },
     ])
     setExplosions([])
@@ -306,8 +560,12 @@ export const CatMode = () => {
 
           console.log(`📏 Distance between cat ${cat1.id} and cat ${cat2.id}: ${distance.toFixed(1)}px`)
 
-          // If cats are closer than 80px (accounting for 120px width), they collide
-          if (distance < 80) {
+          // Check for collision based on bounding box overlap
+          // Two cats collide if their bounding boxes overlap
+          const overlapX = Math.abs(center1X - center2X) < (cat1.rect.width + cat2.rect.width) / 2
+          const overlapY = Math.abs(center1Y - center2Y) < (cat1.rect.height + cat2.rect.height) / 2
+
+          if (overlapX && overlapY) {
             console.log("💥 COLLISION DETECTED!", {
               cat1: cat1.id,
               cat2: cat2.id,
@@ -346,7 +604,7 @@ export const CatMode = () => {
       }
     }
 
-    const interval = setInterval(checkCollisions, 100) // Check every 100ms
+    const interval = setInterval(checkCollisions, window.innerWidth < 768 ? 200 : 100) // Check every 200ms on mobile, 100ms on desktop
     return () => clearInterval(interval)
   }, [cats]) // Depend on cats to re-run when cats change
 
@@ -358,6 +616,8 @@ export const CatMode = () => {
           cat={cat}
           onClick={handleCatClick}
           onPositionUpdate={updateCatPosition}
+          onModeChange={handleModeChange}
+          onDirectionChange={handleDirectionChange}
           sharedAnimationData={sharedAnimationData}
           catRefs={catRefs}
         />
@@ -368,7 +628,7 @@ export const CatMode = () => {
       {showClickText && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="text-center">
-            <div className="bg-black bg-opacity-50 text-white px-6 py-3 rounded-lg text-xl font-bold mb-4">
+            <div className="bg-violet-500 bg-opacity-90 text-white px-12 py-6 rounded-3xl text-4xl font-bold mb-6 shadow-2xl border-2 border-violet-300 backdrop-blur-sm">
               Klicke auf die Katze
             </div>
             {cats.length > 5 && (

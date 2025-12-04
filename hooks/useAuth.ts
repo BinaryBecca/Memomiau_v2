@@ -107,14 +107,19 @@ export const useAuth = () => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
-      if (error) throw error
+      if (error) {
+        console.error("Sign-in error:", error)
+        throw error
+      }
 
-      router.push("/dashboard")
+      if (data?.user) {
+        router.push('/dashboard')
+      }
     } catch (error) {
       throw error
     }
@@ -122,8 +127,9 @@ export const useAuth = () => {
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut()
-      router.push("/")
+      const { error } = await supabase.auth.signOut()
+      if (error) throw error
+      router.push('/')
     } catch (error) {
       throw error
     }

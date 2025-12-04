@@ -9,75 +9,54 @@ import {
 } from "@/components/ai-elements/message"
 import {
   PromptInput,
-  PromptInputActionAddAttachments,
-  PromptInputActionMenu,
-  PromptInputActionMenuContent,
-  PromptInputActionMenuTrigger,
-  PromptInputAttachment,
-  PromptInputAttachments,
-  PromptInputBody,
-  PromptInputButton,
-  PromptInputHeader,
   type PromptInputMessage,
-  PromptInputSelect,
-  PromptInputSelectContent,
-  PromptInputSelectItem,
-  PromptInputSelectTrigger,
-  PromptInputSelectValue,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputFooter,
-  PromptInputTools,
+  PromptInputBody,
 } from "@/components/ai-elements/prompt-input"
 import { Fragment, useState } from "react"
-import { useChat } from "@ai-sdk/react"
-import { CopyIcon, GlobeIcon, RefreshCcwIcon } from "lucide-react"
+import { useChatContext } from "@/components/chat/ChatProvider"
+// supabase client not needed here (no sessionStorage persistence)
+import { CopyIcon, RefreshCcwIcon } from "lucide-react"
 import { Source, Sources, SourcesContent, SourcesTrigger } from "@/components/ai-elements/sources"
 import { Reasoning, ReasoningContent, ReasoningTrigger } from "@/components/ai-elements/reasoning"
 import { Loader } from "@/components/ai-elements/loader"
 // import { SiteHeader } from "@/components/site-header"
-const models = [
-  {
-    name: "GPT 4o",
-    value: "openai/gpt-4o",
-  },
-  {
-    name: "Deepseek R1",
-    value: "deepseek/deepseek-r1",
-  },
-]
 const ChatBotDemo = () => {
   const [input, setInput] = useState("")
-  const [model, setModel] = useState<string>(models[0].value)
-  const [webSearch, setWebSearch] = useState(false)
-  const { messages, sendMessage, status, regenerate } = useChat()
+  const { messages, sendMessage, status, regenerate } = useChatContext()
+  // chat messages live in the ChatProvider so they survive modal unmounts
+
   const handleSubmit = (message: PromptInputMessage) => {
     const hasText = Boolean(message.text)
-    const hasAttachments = Boolean(message.files?.length)
-    if (!(hasText || hasAttachments)) {
+    if (!hasText) {
       return
     }
-    sendMessage(
-      {
-        text: message.text || "Sent with attachments",
-        files: message.files,
-      },
-      {
-        body: {
-          model: model,
-          webSearch: webSearch,
-        },
-      }
-    )
+    sendMessage({
+      text: message.text,
+    })
     setInput("")
   }
+
+  // messages are not persisted; kept only in memory while the page is open
   return (
     <>
       {/* <SiteHeader title="Chat" /> */}
-      <div className="flex flex-1 flex-col">
-        <div className="@container/main flex p-4 md:p-6 flex-1 flex-col gap-2">
-          <Conversation className="h-full">
+      <div className="flex flex-1 flex-col h-full">
+        <div className="@container/main flex flex-1 flex-col gap-3 p-4">
+          <Conversation className="flex-1 min-h-0">
             <ConversationContent>
+              {messages.length === 0 && (
+                <Message from="assistant">
+                  <MessageContent>
+                    <MessageResponse>
+                      {"Hallo! Ich bin MemoMiau 🐱. <br/> Wie kann ich dir beim Lernen mit Karteikarten helfen?"}
+                    </MessageResponse>
+                  </MessageContent>
+                </Message>
+              )}
+
               {messages.map((message) => (
                 <div key={message.id}>
                   {message.role === "assistant" &&
@@ -137,45 +116,23 @@ const ChatBotDemo = () => {
             </ConversationContent>
             <ConversationScrollButton />
           </Conversation>
-          <PromptInput onSubmit={handleSubmit} className="mt-4" globalDrop multiple>
-            <PromptInputHeader>
-              <PromptInputAttachments>
-                {(attachment) => <PromptInputAttachment data={attachment} />}
-              </PromptInputAttachments>
-            </PromptInputHeader>
+          {/* Persist messages to sessionStorage when they change (keyed by session token) */}
+          <PromptInput onSubmit={handleSubmit} className="mt-2">
             <PromptInputBody>
-              <PromptInputTextarea onChange={(e) => setInput(e.target.value)} value={input} />
+              <PromptInputTextarea
+                onChange={(e) => setInput(e.target.value)}
+                value={input}
+                placeholder="Stelle mir eine Frage…"
+              />
             </PromptInputBody>
             <PromptInputFooter>
-              <PromptInputTools>
-                <PromptInputActionMenu>
-                  <PromptInputActionMenuTrigger />
-                  <PromptInputActionMenuContent>
-                    <PromptInputActionAddAttachments />
-                  </PromptInputActionMenuContent>
-                </PromptInputActionMenu>
-                <PromptInputButton variant={webSearch ? "default" : "ghost"} onClick={() => setWebSearch(!webSearch)}>
-                  <GlobeIcon size={16} />
-                  <span>Search</span>
-                </PromptInputButton>
-                <PromptInputSelect
-                  onValueChange={(value) => {
-                    setModel(value)
-                  }}
-                  value={model}>
-                  <PromptInputSelectTrigger>
-                    <PromptInputSelectValue />
-                  </PromptInputSelectTrigger>
-                  <PromptInputSelectContent>
-                    {models.map((model) => (
-                      <PromptInputSelectItem key={model.value} value={model.value}>
-                        {model.name}
-                      </PromptInputSelectItem>
-                    ))}
-                  </PromptInputSelectContent>
-                </PromptInputSelect>
-              </PromptInputTools>
-              <PromptInputSubmit disabled={!input && !status} status={status} />
+              <div className="flex w-full items-center justify-end">
+                <PromptInputSubmit
+                  className="ml-2 rounded-lg bg-[#f984dd] text-white hover:bg-[#e06bbf] border-transparent disabled:opacity-60 disabled:cursor-not-allowed"
+                  disabled={!input && !status}
+                  status={status}
+                />
+              </div>
             </PromptInputFooter>
           </PromptInput>
         </div>

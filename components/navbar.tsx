@@ -68,14 +68,16 @@ export const Navbar = () => {
             </button>
 
             {/* Cat Mode */}
-            <button
-              onClick={() => setCatMode(!catMode)}
-              className={`p-2 rounded-lg transition ${
-                catMode ? "bg-pink-200 dark:bg-pink-900" : "hover:bg-gray-100 dark:hover:bg-slate-800"
-              }`}
-              title="Cat Mode">
-              🐾
-            </button>
+            {user && (
+              <button
+                onClick={() => setCatMode(!catMode)}
+                className={`p-2 rounded-lg transition ${
+                  catMode ? "bg-pink-200 dark:bg-pink-900" : "hover:bg-gray-100 dark:hover:bg-slate-800"
+                }`}
+                title="Cat Mode">
+                🐾
+              </button>
+            )}
 
             {/* Auth Buttons / User Menu */}
             {user && profile ? (
@@ -106,10 +108,10 @@ export const Navbar = () => {
               </DropdownMenu>
             ) : (
               <div className="flex space-x-2">
-                <Button variant="outline" size="sm" asChild>
+                <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2">
                   <Link href="/auth/login">Login</Link>
                 </Button>
-                <Button size="sm" asChild>
+                <Button size="sm" asChild className="hidden sm:block text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2">
                   <Link href="/auth/signup">Get Started</Link>
                 </Button>
               </div>

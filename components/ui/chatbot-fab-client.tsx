@@ -18,7 +18,30 @@ export default function ChatbotFABClient() {
   }, [])
 
   if (!sessionExists) return null
+  if (!pathname) return null
+
+  // Hide on landing page
   if (pathname === "/") return null
+
+  // Explicitly hide on auth-related pages (covers common login/sign-up paths)
+  const hidePaths = [
+    "/auth/login",
+    "/auth/sign-up",
+    "/auth/sign-up-success",
+    "/auth/signup",
+    "/auth/forgot-password",
+    "/auth/confirm",
+    "/login",
+    "/sign-up",
+    "/signup",
+  ]
+
+  for (const p of hidePaths) {
+    if (pathname === p || pathname.startsWith(p + "/")) return null
+  }
+
+  // Fallback: hide on any /auth/* route
+  if (pathname.startsWith("/auth")) return null
 
   return <ChatbotFAB />
 }

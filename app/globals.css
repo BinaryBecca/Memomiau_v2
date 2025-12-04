@@ -13,9 +13,8 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+    "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -29,34 +28,12 @@ body {
 
 .running-cat {
   position: fixed;
-  left: -150px; /* start off-screen */
   width: 120px;
   height: 120px;
-  animation: run-across 15s linear;
   z-index: 9999;
-  pointer-events: none;
-}
-
-@keyframes run-across {
-  from {
-    transform: translateX(0) scaleX(1);
-  }
-  to {
-    transform: translateX(calc(100vw + 200px)) scaleX(1);
-  }
+  pointer-events: auto; /* Enable clicking */
 }
 
 .running-cat.rtl {
-    left: auto;
-    right: -150px;
-    animation: run-across-rtl 10s linear;
-}
-
-@keyframes run-across-rtl {
-  from {
-    transform: translateX(0) scaleX(-1);
-  }
-  to {
-    transform: translateX(calc(-100vw - 200px)) scaleX(-1);
-  }
+  transform: scaleX(-1);
 }

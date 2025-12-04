@@ -32,6 +32,7 @@ export default function DeckDetailPage() {
 
   const { decks } = useDecks(user?.id)
   const { cards, loading: cardsLoading, fetchCards, deleteCard, updateCard } = useCards(deckId, user?.id)
+  const { updateDeck } = useDecks(user?.id)
 
   const [deck, setDeck] = useState<Deck | null>(null)
   const [loading, setLoading] = useState(true)
@@ -82,6 +83,23 @@ export default function DeckDetailPage() {
     } catch {
       // Error handling is done in the hook
     }
+  }
+
+  const handleMakeDeckPublic = async () => {
+    if (!deck) return
+
+    try {
+      await updateDeck(deck.id, deck.name, deck.description || "", true)
+      alert("Deck wurde öffentlich gemacht!")
+    } catch (error) {
+      console.error("Error making deck public:", error)
+      alert("Fehler beim Öffentlichmachen des Decks")
+    }
+  }
+
+  const handleUpdateCommunity = () => {
+    fetchPublicDecks()
+    alert("Flashcards wurden auf der Community aktualisiert!")
   }
 
   const sortedCards = useMemo(() => {
@@ -197,15 +215,15 @@ export default function DeckDetailPage() {
                       Mit KI generieren
                     </Link>
                   </Button>
-                  <Button
-                    variant="default"
-                    className="flex-1"
-                    onClick={() => {
-                      fetchPublicDecks()
-                      alert("Flashcards wurden auf der Community aktualisiert!")
-                    }}>
-                    Flashcards auf Community aktualisieren
-                  </Button>
+                  {deck.is_public ? (
+                    <Button variant="default" className="flex-1" onClick={handleUpdateCommunity}>
+                      Flashcards auf Community aktualisieren
+                    </Button>
+                  ) : (
+                    <Button variant="default" className="flex-1" onClick={handleMakeDeckPublic}>
+                      Deck öffentlich machen
+                    </Button>
+                  )}
                 </>
               )}
             </div>

@@ -1,28 +1,72 @@
 "use client"
-import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ai-elements/conversation"
-import {
-  Message,
-  MessageContent,
-  MessageResponse,
-  MessageActions,
-  MessageAction,
-} from "@/components/ai-elements/message"
-import {
-  PromptInput,
-  type PromptInputMessage,
-  PromptInputSubmit,
-  PromptInputTextarea,
-  PromptInputFooter,
-  PromptInputBody,
-} from "@/components/ai-elements/prompt-input"
 import { Fragment, useState } from "react"
 import { useChatContext } from "@/components/chat/ChatProvider"
 // supabase client not needed here (no sessionStorage persistence)
 import { CopyIcon, RefreshCcwIcon } from "lucide-react"
-import { Source, Sources, SourcesContent, SourcesTrigger } from "@/components/ai-elements/sources"
-import { Reasoning, ReasoningContent, ReasoningTrigger } from "@/components/ai-elements/reasoning"
-import { Loader } from "@/components/ai-elements/loader"
-// import { SiteHeader } from "@/components/site-header"
+import dynamic from "next/dynamic"
+import type { PromptInputMessage } from "@/components/ai-elements/prompt-input"
+
+// Lazy load heavy AI components
+const Conversation = dynamic(() =>
+  import("@/components/ai-elements/conversation").then((mod) => ({ default: mod.Conversation }))
+)
+const ConversationContent = dynamic(() =>
+  import("@/components/ai-elements/conversation").then((mod) => ({ default: mod.ConversationContent }))
+)
+const ConversationScrollButton = dynamic(() =>
+  import("@/components/ai-elements/conversation").then((mod) => ({ default: mod.ConversationScrollButton }))
+)
+
+const Message = dynamic(() => import("@/components/ai-elements/message").then((mod) => ({ default: mod.Message })))
+const MessageContent = dynamic(() =>
+  import("@/components/ai-elements/message").then((mod) => ({ default: mod.MessageContent }))
+)
+const MessageResponse = dynamic(() =>
+  import("@/components/ai-elements/message").then((mod) => ({ default: mod.MessageResponse }))
+)
+const MessageActions = dynamic(() =>
+  import("@/components/ai-elements/message").then((mod) => ({ default: mod.MessageActions }))
+)
+const MessageAction = dynamic(() =>
+  import("@/components/ai-elements/message").then((mod) => ({ default: mod.MessageAction }))
+)
+
+const PromptInput = dynamic(() =>
+  import("@/components/ai-elements/prompt-input").then((mod) => ({ default: mod.PromptInput }))
+)
+const PromptInputSubmit = dynamic(() =>
+  import("@/components/ai-elements/prompt-input").then((mod) => ({ default: mod.PromptInputSubmit }))
+)
+const PromptInputTextarea = dynamic(() =>
+  import("@/components/ai-elements/prompt-input").then((mod) => ({ default: mod.PromptInputTextarea }))
+)
+const PromptInputFooter = dynamic(() =>
+  import("@/components/ai-elements/prompt-input").then((mod) => ({ default: mod.PromptInputFooter }))
+)
+const PromptInputBody = dynamic(() =>
+  import("@/components/ai-elements/prompt-input").then((mod) => ({ default: mod.PromptInputBody }))
+)
+
+const Source = dynamic(() => import("@/components/ai-elements/sources").then((mod) => ({ default: mod.Source })))
+const Sources = dynamic(() => import("@/components/ai-elements/sources").then((mod) => ({ default: mod.Sources })))
+const SourcesContent = dynamic(() =>
+  import("@/components/ai-elements/sources").then((mod) => ({ default: mod.SourcesContent }))
+)
+const SourcesTrigger = dynamic(() =>
+  import("@/components/ai-elements/sources").then((mod) => ({ default: mod.SourcesTrigger }))
+)
+
+const Reasoning = dynamic(() =>
+  import("@/components/ai-elements/reasoning").then((mod) => ({ default: mod.Reasoning }))
+)
+const ReasoningContent = dynamic(() =>
+  import("@/components/ai-elements/reasoning").then((mod) => ({ default: mod.ReasoningContent }))
+)
+const ReasoningTrigger = dynamic(() =>
+  import("@/components/ai-elements/reasoning").then((mod) => ({ default: mod.ReasoningTrigger }))
+)
+
+const Loader = dynamic(() => import("@/components/ai-elements/loader").then((mod) => ({ default: mod.Loader })))
 const ChatBotDemo = () => {
   const [input, setInput] = useState("")
   const { messages, sendMessage, status, regenerate } = useChatContext()

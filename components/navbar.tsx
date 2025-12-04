@@ -17,6 +17,7 @@ import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import { CatMode } from "./cat-mode"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 export const Navbar = () => {
   const { user, profile, signOut } = useAuth()
@@ -24,9 +25,16 @@ export const Navbar = () => {
   const [catMode, setCatMode] = useState(false)
   const [gameStarted, setGameStarted] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const router = useRouter()
+
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Preload heavy routes on hover for better UX
+  const preloadRoute = (href: string) => {
+    router.prefetch(href)
+  }
 
   const getAvatarInitial = () => {
     return profile?.username.charAt(0).toUpperCase() || "U"
@@ -52,6 +60,7 @@ export const Navbar = () => {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onMouseEnter={() => preloadRoute(item.href)}
                   className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition">
                   {item.label}
                 </Link>

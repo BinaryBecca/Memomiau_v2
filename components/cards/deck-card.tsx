@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, memo, useCallback } from "react"
 import { Deck } from "@/lib/types"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -17,39 +17,45 @@ interface DeckCardProps {
   onEdit?: (deck: Deck) => void
 }
 
-export const DeckCard = ({ deck, cardCount = 0, onDelete, onEdit }: DeckCardProps) => {
+export const DeckCard = memo(({ deck, cardCount = 0, onDelete, onEdit }: DeckCardProps) => {
   const [isDeleting, setIsDeleting] = useState(false)
   const { notify } = useNotification()
   const { confirm } = useConfirm()
 
-  const handleDelete = async (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+  const handleDelete = useCallback(
+    async (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
 
-    if (!onDelete) return
+      if (!onDelete) return
 
-    const ok = await confirm({
-      title: "Deck löschen?",
-      description: `Möchtest du das Deck "${deck.name}" wirklich löschen? Dies kann nicht rückgängig gemacht werden.`,
-    })
-    if (!ok) return
+      const ok = await confirm({
+        title: "Deck löschen?",
+        description: `Möchtest du das Deck "${deck.name}" wirklich löschen? Dies kann nicht rückgängig gemacht werden.`,
+      })
+      if (!ok) return
 
-    try {
-      setIsDeleting(true)
-      await onDelete(deck.id)
-    } catch (error) {
-      console.error("Error deleting deck:", error)
-      notify("Fehler beim Löschen des Decks")
-    } finally {
-      setIsDeleting(false)
-    }
-  }
+      try {
+        setIsDeleting(true)
+        await onDelete(deck.id)
+      } catch (error) {
+        console.error("Error deleting deck:", error)
+        notify("Fehler beim Löschen des Decks")
+      } finally {
+        setIsDeleting(false)
+      }
+    },
+    [onDelete, deck.name, deck.id, confirm, notify]
+  )
 
-  const handleEdit = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    onEdit?.(deck)
-  }
+  const handleEdit = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      onEdit?.(deck)
+    },
+    [onEdit, deck]
+  )
 
   return (
     <Link href={`/dashboard/deck/${deck.id}`}>
@@ -99,4 +105,4 @@ export const DeckCard = ({ deck, cardCount = 0, onDelete, onEdit }: DeckCardProp
       </Card>
     </Link>
   )
-}
+})

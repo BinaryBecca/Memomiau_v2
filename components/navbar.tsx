@@ -22,6 +22,7 @@ export const Navbar = () => {
   const { user, profile, signOut } = useAuth()
   const { theme, setTheme } = useTheme()
   const [catMode, setCatMode] = useState(false)
+  const [gameStarted, setGameStarted] = useState(false)
   const [mounted, setMounted] = useState(false)
   useEffect(() => {
     setMounted(true)
@@ -33,7 +34,7 @@ export const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-50 border-b bg-white dark:bg-slate-950 dark:border-slate-800">
-      {catMode && <CatMode />}
+      {catMode && <CatMode onGameStarted={() => setGameStarted(true)} />}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -69,14 +70,22 @@ export const Navbar = () => {
 
             {/* Cat Mode */}
             {user && (
-              <button
-                onClick={() => setCatMode(!catMode)}
-                className={`p-2 rounded-lg transition ${
-                  catMode ? "bg-pink-200 dark:bg-pink-900" : "hover:bg-gray-100 dark:hover:bg-slate-800"
-                }`}
-                title="Cat Mode">
-                🐾
-              </button>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => {
+                    setCatMode(!catMode)
+                    if (catMode) {
+                      // Reset game started when turning off cat mode
+                      setGameStarted(false)
+                    }
+                  }}
+                  className={`p-2 rounded-lg transition ${
+                    catMode ? "bg-pink-200 dark:bg-pink-900" : "hover:bg-gray-100 dark:hover:bg-slate-800"
+                  }`}
+                  title="Cat Mode">
+                  🐾
+                </button>
+              </div>
             )}
 
             {/* Auth Buttons / User Menu */}

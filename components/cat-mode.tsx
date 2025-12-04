@@ -24,6 +24,10 @@ interface Explosion {
 // Helper function to get random cat size
 const getRandomCatSize = (): number => {
   // Random size between 80px and 200px for more variety (added 2 larger models)
+  const rand = Math.random()
+  if (rand < 0.01) return window.innerWidth * 0.5 // 1% chance for screen-filling giant cat
+  if (rand < 0.06) return 250 // 5% chance for extra large cat
+  if (rand < 0.11) return 300 // 5% chance for super large cat
   return Math.random() * 120 + 80
 }
 
@@ -31,8 +35,9 @@ const getRandomCatSize = (): number => {
 const getCatSpeed = (size: number): number => {
   // Base speed between 8 and 22, with size influence
   // Smaller cats (80px) get +4 speed bonus, larger cats (160px) get -4 speed penalty
-  const sizeBonus = ((160 - size) / 80) * 8 - 4 // -4 to +4 range
-  return Math.random() * 10 + 10 + sizeBonus
+  // For very large cats (screen-filling), ensure minimum speed of 2
+  const sizeBonus = ((160 - Math.min(size, 400)) / 80) * 8 - 4 // Cap size at 400px for calculation
+  return Math.max(2, Math.random() * 10 + 10 + sizeBonus) // Minimum speed of 2
 }
 
 // Helper function to get random direction
@@ -180,6 +185,7 @@ const RunningCat = ({
   onDirectionChange,
   sharedAnimationData,
   catRefs,
+  showClickText,
 }: {
   cat: Cat
   onClick: (id: number) => void
@@ -188,10 +194,11 @@ const RunningCat = ({
   onDirectionChange: (id: number, direction: Cat["direction"]) => void
   sharedAnimationData: unknown
   catRefs: React.MutableRefObject<Record<number, HTMLDivElement | null>>
+  showClickText: boolean
 }) => {
   const config = getDirectionConfig(cat.direction)
-  const [currentX, setCurrentX] = useState(config.startX)
-  const [currentY, setCurrentY] = useState(config.startY)
+  const [currentX, setCurrentX] = useState(cat.x)
+  const [currentY, setCurrentY] = useState(cat.y)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Register this cat's ref in the parent component's catRefs
@@ -210,6 +217,23 @@ const RunningCat = ({
       const screenWidth = window.innerWidth
       const screenHeight = window.innerHeight
       const moveDistance = (screenWidth + 300) / (cat.speed * 100) // Base movement speed - slightly slower for better control
+
+      // Special handling for first cat (id: 1) - move from left to right above the button
+      if (cat.id === 1 && showClickText) {
+        // Move slowly from left to right above the button
+        const slowMoveDistance = 2 // Slow constant speed
+        setCurrentX((prevX) => {
+          const newX = prevX + slowMoveDistance
+          // Reset to left side if it goes too far right (using cat.size for boundary check)
+          const screenWidth = window.innerWidth
+          if (newX > screenWidth + 100) {
+            // Use a fixed value instead of cat.size
+            return -100
+          }
+          return newX
+        })
+        return
+      }
 
       setCurrentX((prevX) => {
         let newX = prevX + config.deltaX * moveDistance
@@ -281,7 +305,17 @@ const RunningCat = ({
 
     const interval = setInterval(moveCat, 24) // ~40fps on mobile for better performance
     return () => clearInterval(interval)
-  }, [cat.id, cat.direction, cat.speed, cat.mode, onPositionUpdate, onModeChange, onDirectionChange, config])
+  }, [
+    cat.id,
+    cat.direction,
+    cat.speed,
+    cat.mode,
+    onPositionUpdate,
+    onModeChange,
+    onDirectionChange,
+    config,
+    showClickText,
+  ])
 
   // Calculate rotation based on direction for visual feedback
   const getRotation = (direction: Cat["direction"]) => {
@@ -409,14 +443,18 @@ const Explosion = ({ explosion }: { explosion: Explosion }) => {
   )
 }
 
-export const CatMode = () => {
+export const CatMode = ({ onGameStarted }: { onGameStarted?: () => void }) => {
   const [cats, setCats] = useState<Cat[]>([])
   const [explosions, setExplosions] = useState<Explosion[]>([])
   const [showClickText, setShowClickText] = useState(true)
   const [sharedAnimationData, setSharedAnimationData] = useState<unknown>(null)
+  const [explosionCount, setExplosionCount] = useState(0)
+  const [celebrationMode, setCelebrationMode] = useState(false)
+  const [celebrationEndTime, setCelebrationEndTime] = useState(0)
+  const [confettiAnimationData, setConfettiAnimationData] = useState<object | null>(null)
   const catRefs = useRef<Record<number, HTMLDivElement | null>>({})
 
-  // Load shared animation data once
+  // Load shared animation data
   useEffect(() => {
     fetch("/dance-cat.json")
       .then((response) => {
@@ -433,16 +471,45 @@ export const CatMode = () => {
         console.error("Error loading shared dance-cat.json:", error)
         // Don't set fallback here - let the component handle it
       })
+
+    // Load confetti animation data
+    fetch("/confetti-cat.json")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Confetti cat animation loaded successfully")
+        setConfettiAnimationData(data)
+      })
+      .catch((error) => {
+        console.error("Error loading confetti-cat.json:", error)
+      })
   }, [])
+
+  // Handle celebration mode timing
+  useEffect(() => {
+    if (celebrationMode && celebrationEndTime > 0) {
+      const timeout = setTimeout(() => {
+        setCelebrationMode(false)
+        setCelebrationEndTime(0)
+      }, celebrationEndTime - Date.now())
+
+      return () => clearTimeout(timeout)
+    }
+  }, [celebrationMode, celebrationEndTime])
 
   // Initialize with one cat
   useEffect(() => {
     const size = getRandomCatSize()
+    // Position the first cat above the button, starting from left side
+    const screenWidth = typeof window !== "undefined" ? window.innerWidth : 1920
+    const screenHeight = typeof window !== "undefined" ? window.innerHeight : 1080
+    const startX = -size // Start just off-screen to the left
+    const buttonY = screenHeight / 2 - 100 // Above the centered button
+
     setCats([
       {
         id: 1,
-        x: -150,
-        y: Math.random() * 80 + 10,
+        x: startX,
+        y: buttonY,
         speed: getCatSpeed(size),
         direction: getRandomDirection(),
         mode: "entering",
@@ -451,11 +518,36 @@ export const CatMode = () => {
     ])
   }, [])
 
+  // Respawn first cat when all cats are gone
+  useEffect(() => {
+    if (!showClickText && cats.length === 0) {
+      const size = getRandomCatSize()
+      // Position the first cat above the button, starting from left side
+      const screenWidth = typeof window !== "undefined" ? window.innerWidth : 1920
+      const screenHeight = typeof window !== "undefined" ? window.innerHeight : 1080
+      const startX = -size // Start just off-screen to the left
+      const buttonY = screenHeight / 2 - 100 // Above the centered button
+
+      setCats([
+        {
+          id: Date.now(), // New ID to avoid conflicts
+          x: startX,
+          y: buttonY,
+          speed: getCatSpeed(size),
+          direction: getRandomDirection(),
+          mode: "entering",
+          size: size,
+        },
+      ])
+    }
+  }, [cats.length, showClickText])
+
   const handleCatClick = (_catId: number) => {
     // Parameter wird derzeit nicht verwendet, aber für zukünftige Features reserviert
     void _catId
     if (showClickText) {
       setShowClickText(false)
+      onGameStarted?.()
     }
 
     // Double the number of cats (with limit to prevent performance issues)
@@ -519,6 +611,9 @@ export const CatMode = () => {
       },
     ])
     setExplosions([])
+    setExplosionCount(0) // Reset explosion counter
+    setCelebrationMode(false) // End any ongoing celebration
+    setCelebrationEndTime(0)
   }
 
   // Check for collisions - simplified and direct
@@ -566,6 +661,26 @@ export const CatMode = () => {
           const overlapY = Math.abs(center1Y - center2Y) < (cat1.rect.height + cat2.rect.height) / 2
 
           if (overlapX && overlapY) {
+            // Check if both cats are fully visible on screen
+            const cat1FullyVisible =
+              cat1.rect.left >= 0 &&
+              cat1.rect.top >= 0 &&
+              cat1.rect.right <= window.innerWidth &&
+              cat1.rect.bottom <= window.innerHeight
+            const cat2FullyVisible =
+              cat2.rect.left >= 0 &&
+              cat2.rect.top >= 0 &&
+              cat2.rect.right <= window.innerWidth &&
+              cat2.rect.bottom <= window.innerHeight
+
+            if (!cat1FullyVisible || !cat2FullyVisible) {
+              console.log("🚫 Collision ignored - cats not fully on screen", {
+                cat1: { id: cat1.id, fullyVisible: cat1FullyVisible },
+                cat2: { id: cat2.id, fullyVisible: cat2FullyVisible },
+              })
+              continue // Skip this collision
+            }
+
             console.log("💥 COLLISION DETECTED!", {
               cat1: cat1.id,
               cat2: cat2.id,
@@ -589,6 +704,20 @@ export const CatMode = () => {
               }
               setExplosions((prev) => [...prev, explosion])
 
+              // Increase explosion count
+              setExplosionCount((prev) => {
+                const newCount = prev + 1
+
+                // Check if we reached a milestone (every 10 explosions)
+                if (newCount % 10 === 0) {
+                  // Start celebration mode for 7 seconds
+                  setCelebrationMode(true)
+                  setCelebrationEndTime(Date.now() + 7000) // 7 seconds from now
+                }
+
+                return newCount
+              })
+
               // Remove colliding cats
               setCats((prevCats) => prevCats.filter((cat) => cat.id !== cat1.id && cat.id !== cat2.id))
 
@@ -610,25 +739,40 @@ export const CatMode = () => {
 
   return (
     <div aria-hidden="true">
-      {cats.map((cat) => (
-        <RunningCat
-          key={cat.id}
-          cat={cat}
-          onClick={handleCatClick}
-          onPositionUpdate={updateCatPosition}
-          onModeChange={handleModeChange}
-          onDirectionChange={handleDirectionChange}
-          sharedAnimationData={sharedAnimationData}
-          catRefs={catRefs}
-        />
-      ))}
+      {/* Celebration Mode - confetti cat overlay */}
+      {celebrationMode && confettiAnimationData && (
+        <div className="fixed inset-0 z-30 flex items-center justify-center pointer-events-none">
+          <Lottie
+            animationData={confettiAnimationData}
+            loop={true}
+            autoplay={true}
+            style={{ width: "50vw", height: "50vh" }}
+          />
+        </div>
+      )}
+
+      {/* Normal cats - hidden during celebration */}
+      {!celebrationMode &&
+        cats.map((cat) => (
+          <RunningCat
+            key={cat.id}
+            cat={cat}
+            onClick={handleCatClick}
+            onPositionUpdate={updateCatPosition}
+            onModeChange={handleModeChange}
+            onDirectionChange={handleDirectionChange}
+            sharedAnimationData={sharedAnimationData}
+            catRefs={catRefs}
+            showClickText={showClickText}
+          />
+        ))}
       {explosions.map((explosion) => (
         <Explosion key={explosion.id} explosion={explosion} />
       ))}
       {showClickText && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="text-center">
-            <div className="bg-violet-500 bg-opacity-90 text-white px-12 py-6 rounded-3xl text-4xl font-bold mb-6 shadow-2xl border-2 border-violet-300 backdrop-blur-sm">
+            <div className="bg-[#f984dd] hover:bg-[#e06bbf] text-white px-12 py-6 rounded-full text-4xl font-bold mb-6 shadow-lg border-4 border-white dark:border-slate-900 backdrop-blur-sm">
               Klicke auf die Katze
             </div>
             {cats.length > 5 && (
@@ -638,6 +782,18 @@ export const CatMode = () => {
                 Zu viele Katzen? Zurücksetzen ({cats.length})
               </button>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Explosion Counter - bottom left */}
+      {!showClickText && (
+        <div className="fixed bottom-6 left-6 z-40">
+          <div
+            className={`bg-[#f984dd] hover:bg-[#e06bbf] text-white px-4 py-2 rounded-full font-bold shadow-lg border-4 border-white dark:border-slate-900 transition-all duration-300 ${
+              explosionCount > 0 && explosionCount % 10 >= 7 ? "animate-pulse" : ""
+            }`}>
+            {explosionCount > 0 && explosionCount % 10 >= 7 ? "💣" : "💥"} {explosionCount % 10}/10
           </div>
         </div>
       )}

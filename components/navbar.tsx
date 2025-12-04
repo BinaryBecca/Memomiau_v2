@@ -13,10 +13,11 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import Image from "next/image"
+import memomiauLogo from "@/public/memomiau_dummy.jpg"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import { CatMode } from "./cat-mode"
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 
 export const Navbar = () => {
@@ -48,7 +49,15 @@ export const Navbar = () => {
           {/* Logo */}
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 rounded-full flex items-center justify-center">
-              <Image src="/memomiau_dummy.jpg" alt="Memomiau-Logo" width={100} height={100} className="rounded-full" />
+              <Image
+                src={memomiauLogo}
+                alt="Memomiau-Logo"
+                width={100}
+                height={100}
+                className="rounded-full"
+                sizes="32px"
+                placeholder="blur"
+              />
             </div>
             <span className="font-bold text-lg">MemoMiau</span>
           </div>

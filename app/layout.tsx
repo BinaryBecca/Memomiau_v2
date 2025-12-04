@@ -19,13 +19,12 @@ export const metadata: Metadata = {
   title: "MemoMiau",
   description: "Learn with Flashcards",
   manifest: "/manifest.json",
-  viewport: "width=device-width, initial-scale=1",
-  themeColor: "#3b82f6",
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" suppressHydrationWarning>
+    <html lang="de" suppressHydrationWarning data-scroll-behavior="smooth">
+      <head>{/* Preload kritischer Ressourcen für bessere LCP */}</head>
       <body className={inter.variable}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <NotificationProvider>

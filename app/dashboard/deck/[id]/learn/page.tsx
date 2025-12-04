@@ -26,6 +26,7 @@ export default function LearnPage() {
   const [loading, setLoading] = useState(true)
   const [isUpdating, setIsUpdating] = useState(false)
   const [progress, setProgress] = useState({ green: 0, yellow: 0, red: 0 })
+  const [disableNextFlip, setDisableNextFlip] = useState(false)
   // ...existing code...
   const [timeLeft, setTimeLeft] = useState<number | null>(null)
   const [timerActive, setTimerActive] = useState(false)
@@ -118,7 +119,11 @@ export default function LearnPage() {
 
       // Move to next card
       if (currentIndex + 1 < cardsToLearn.length) {
+        // Disable flip animation briefly for the next card so it appears front-first
+        setDisableNextFlip(true)
         setCurrentIndex(currentIndex + 1)
+        // Re-enable animation on the next tick
+        setTimeout(() => setDisableNextFlip(false), 50)
       } else {
         // Learning session completed
         setTimeout(() => {
@@ -201,7 +206,12 @@ export default function LearnPage() {
         </div>
 
         {/* Flashcard */}
-        <FlashcardDisplay card={currentCard} onFeedback={handleFeedback} isLoading={isUpdating} />
+        <FlashcardDisplay
+          card={currentCard}
+          onFeedback={handleFeedback}
+          isLoading={isUpdating}
+          disableFlipAnimation={disableNextFlip}
+        />
 
         {/* Action Buttons */}
         <div className="flex space-x-4 mt-8 justify-center">

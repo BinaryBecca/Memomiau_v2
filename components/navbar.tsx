@@ -36,11 +36,11 @@ export const Navbar = () => {
     <nav className="sticky top-0 z-50 border-b bg-white dark:bg-slate-950 dark:border-slate-800">
       {catMode && <CatMode onGameStarted={() => setGameStarted(true)} />}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center">
-              <Image src="/memomiau_dummy.jpg" alt="Memomiau-Logo" width={100} height={100} className="rounded-full" />
+            <div className="w-[48px] h-[48px] flex items-center justify-center overflow-hidden">
+              <Image src="/memomiau_logo.png" alt="Memomiau-Logo" width={100} height={100} className="object-cover" />
             </div>
             <span className="font-bold text-lg">MemoMiau</span>
           </div>
@@ -60,12 +60,17 @@ export const Navbar = () => {
           )}
 
           {/* Right side: Theme, Cat Mode, Auth */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             {/* Theme Toggle */}
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition">
-              {mounted && (theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />)}
+              className="p-1 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition">
+              {mounted &&
+                (theme === "dark" ? (
+                  <Sun className="w-4 h-4 sm:w-5 sm:h-5" />
+                ) : (
+                  <Moon className="w-4 h-4 sm:w-5 sm:h-5" />
+                ))}
             </button>
 
             {/* Cat Mode */}
@@ -79,11 +84,35 @@ export const Navbar = () => {
                       setGameStarted(false)
                     }
                   }}
-                  className={`p-2 rounded-lg transition ${
+                  className={`p-1 sm:p-2 rounded-lg transition ${
                     catMode ? "bg-pink-200 dark:bg-pink-900" : "hover:bg-gray-100 dark:hover:bg-slate-800"
                   }`}
                   title="Cat Mode">
-                  🐾
+                  <div className="w-5 h-5 sm:w-7 sm:h-7 flex items-center justify-center">
+                    {mounted ? (
+                      <Image
+                        src={
+                          catMode
+                            ? "/icon_catmode_paws_pink.svg"
+                            : theme === "dark"
+                            ? "/icon_catmode_paws_white.svg"
+                            : "/icon_catmode_paws_black.svg"
+                        }
+                        alt="Cat Mode"
+                        width={28}
+                        height={28}
+                        className="object-contain"
+                      />
+                    ) : (
+                      <Image
+                        src="/icon_catmode_paws_white.svg"
+                        alt="Cat Mode"
+                        width={28}
+                        height={28}
+                        className="object-contain"
+                      />
+                    )}
+                  </div>
                 </button>
               </div>
             )}

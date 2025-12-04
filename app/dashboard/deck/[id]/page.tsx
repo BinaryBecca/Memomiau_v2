@@ -94,6 +94,7 @@ export default function DeckDetailPage() {
     try {
       await updateDeck(deck.id, deck.name, deck.description || "", true)
       notify("Deck wurde öffentlich gemacht!")
+      setDeck({ ...deck, is_public: true })
     } catch (error) {
       console.error("Error making deck public:", error)
       notify("Fehler beim Öffentlichmachen des Decks")
@@ -220,7 +221,7 @@ export default function DeckDetailPage() {
                   </Button>
                   {deck.is_public ? (
                     <Button variant="default" className="flex-1" onClick={handleUpdateCommunity}>
-                      Flashcards auf Community aktualisieren
+                      Auf Community aktualisieren
                     </Button>
                   ) : (
                     <Button variant="default" className="flex-1" onClick={handleMakeDeckPublic}>

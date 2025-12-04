@@ -500,7 +500,6 @@ export const CatMode = ({ onGameStarted }: { onGameStarted?: () => void }) => {
   useEffect(() => {
     const size = getRandomCatSize()
     // Position the first cat above the button, starting from left side
-    const screenWidth = typeof window !== "undefined" ? window.innerWidth : 1920
     const screenHeight = typeof window !== "undefined" ? window.innerHeight : 1080
     const startX = -size // Start just off-screen to the left
     const buttonY = screenHeight / 2 - 100 // Above the centered button
@@ -523,7 +522,6 @@ export const CatMode = ({ onGameStarted }: { onGameStarted?: () => void }) => {
     if (!showClickText && cats.length === 0) {
       const size = getRandomCatSize()
       // Position the first cat above the button, starting from left side
-      const screenWidth = typeof window !== "undefined" ? window.innerWidth : 1920
       const screenHeight = typeof window !== "undefined" ? window.innerHeight : 1080
       const startX = -size // Start just off-screen to the left
       const buttonY = screenHeight / 2 - 100 // Above the centered button

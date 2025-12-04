@@ -49,7 +49,7 @@ export const Navbar = () => {
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 rounded-full flex items-center justify-center">
               <Image
-                src="/memomiau_dummy.jpg"
+                src="/memomiau_logo.png"
                 alt="Memomiau-Logo"
                 width={100}
                 height={100}

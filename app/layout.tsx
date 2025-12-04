@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Inter } from "next/font/google"
 import { Navbar } from "@/components/navbar"
 import { ThemeProvider } from "next-themes"
 import ChatbotFABClient from "@/components/ui/chatbot-fab-client"
@@ -8,15 +9,23 @@ import { NotificationProvider } from "@/components/ui/notification"
 // NotificationModal is rendered by NotificationProvider
 import ConfirmProvider from "@/components/ui/confirm"
 
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+})
+
 export const metadata: Metadata = {
   title: "MemoMiau",
   description: "Learn with Flashcards",
+  manifest: "/manifest.json",
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" suppressHydrationWarning>
-      <body>
+    <html lang="de" suppressHydrationWarning data-scroll-behavior="smooth">
+      <head>{/* Preload kritischer Ressourcen für bessere LCP */}</head>
+      <body className={inter.variable}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <NotificationProvider>
             <ConfirmProvider>

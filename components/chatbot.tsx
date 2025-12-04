@@ -1,4 +1,4 @@
-import ChatBotDemo from "@/app/chat/page"
+import ChatBotDemo from "@/app/(heavy-features)/chat/page"
 
 const ChatBot = () => {
   return <ChatBotDemo />

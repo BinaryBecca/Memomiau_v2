@@ -4,13 +4,26 @@ import { useState, useEffect } from "react"
 import { useAuth } from "@/hooks/useAuth"
 import { useDecks } from "@/hooks/useDecks"
 import { Button } from "@/components/ui/button"
-import { CreateDeckModal } from "@/components/modals/create-deck-modal"
-import { EditDeckModal } from "@/components/modals/edit-deck-modal"
 import { DeckCard } from "@/components/cards/deck-card"
 import { Plus, Upload } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Deck } from "@/lib/types"
 import LoadingCat from "@/components/cat-loader"
+import dynamic from "next/dynamic"
+
+// Lazy load modals since they're only shown when needed
+const CreateDeckModal = dynamic(
+  () => import("@/components/modals/create-deck-modal").then((mod) => ({ default: mod.CreateDeckModal })),
+  {
+    loading: () => <div>Loading...</div>,
+  }
+)
+const EditDeckModal = dynamic(
+  () => import("@/components/modals/edit-deck-modal").then((mod) => ({ default: mod.EditDeckModal })),
+  {
+    loading: () => <div>Loading...</div>,
+  }
+)
 
 export default function DashboardPage() {
   const { user } = useAuth()

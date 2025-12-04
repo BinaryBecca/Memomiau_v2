@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useState, useEffect } from "react"
+import { useCallback, useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Deck } from "@/lib/types"
 
@@ -9,45 +9,66 @@ export const useDecks = (userId: string | undefined) => {
   const [cardCounts, setCardCounts] = useState<Record<string, number>>({})
   const [loading, setLoading] = useState(true) // Start mit true für initiales Laden
   const supabase = createClient()
+  const cacheRef = useRef<{ data: Deck[]; cardCounts: Record<string, number>; timestamp: number } | null>(null)
+  const CACHE_DURATION = 5 * 60 * 1000 // 5 Minuten Cache
 
-  const fetchDecks = useCallback(async () => {
-    if (!userId) return
-    setLoading(true)
-    try {
-      const { data, error } = await supabase
-        .from("decks")
-        .select("*")
-        .eq("owner", userId)
-        .order("created_at", { ascending: false })
+  const fetchDecks = useCallback(
+    async (forceRefresh = false) => {
+      if (!userId) return
 
-      if (error) throw error
+      // Prüfe Cache
+      if (!forceRefresh && cacheRef.current && Date.now() - cacheRef.current.timestamp < CACHE_DURATION) {
+        setDecks(cacheRef.current.data)
+        setCardCounts(cacheRef.current.cardCounts)
+        setLoading(false)
+        return
+      }
 
-      const decksData = data as Deck[]
-      setDecks(decksData)
+      setLoading(true)
+      try {
+        const { data, error } = await supabase
+          .from("decks")
+          .select("*")
+          .eq("owner", userId)
+          .order("created_at", { ascending: false })
 
-      // Fetch card counts for all decks
-      if (decksData.length > 0) {
-        const counts: Record<string, number> = {}
+        if (error) throw error
 
-        for (const deck of decksData) {
-          const { count, error: countError } = await supabase
-            .from("cards")
-            .select("*", { count: "exact" })
-            .eq("deck_id", deck.id)
+        const decksData = data as Deck[]
+        setDecks(decksData)
 
-          if (!countError) {
-            counts[deck.id] = count || 0
+        // Fetch card counts for all decks
+        if (decksData.length > 0) {
+          const counts: Record<string, number> = {}
+
+          for (const deck of decksData) {
+            const { count, error: countError } = await supabase
+              .from("cards")
+              .select("*", { count: "exact" })
+              .eq("deck_id", deck.id)
+
+            if (!countError) {
+              counts[deck.id] = count || 0
+            }
+          }
+
+          setCardCounts(counts)
+
+          // Cache die Daten
+          cacheRef.current = {
+            data: decksData,
+            cardCounts: counts,
+            timestamp: Date.now(),
           }
         }
-
-        setCardCounts(counts)
+      } catch (error) {
+        console.error("Error fetching decks:", error)
+      } finally {
+        setLoading(false)
       }
-    } catch (error) {
-      console.error("Error fetching decks:", error)
-    } finally {
-      setLoading(false)
-    }
-  }, [userId, supabase])
+    },
+    [userId, supabase]
+  )
 
   const createDeck = useCallback(
     async (name: string, description?: string, isPublic?: boolean) => {
@@ -141,6 +162,10 @@ export const useDecks = (userId: string | undefined) => {
     [userId, supabase]
   )
 
+  const invalidateCache = useCallback(() => {
+    cacheRef.current = null
+  }, [])
+
   useEffect(() => {
     fetchDecks()
   }, [userId, fetchDecks])
@@ -153,5 +178,6 @@ export const useDecks = (userId: string | undefined) => {
     createDeck,
     deleteDeck,
     updateDeck,
+    invalidateCache,
   }
 }

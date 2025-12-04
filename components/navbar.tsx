@@ -13,10 +13,12 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import Image from "next/image"
+import memomiauLogo from "@/public/memomiau_dummy.jpg"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import { CatMode } from "./cat-mode"
-import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 export const Navbar = () => {
   const { user, profile, signOut } = useAuth()
@@ -24,9 +26,16 @@ export const Navbar = () => {
   const [catMode, setCatMode] = useState(false)
   const [gameStarted, setGameStarted] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const router = useRouter()
+
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Preload heavy routes on hover for better UX
+  const preloadRoute = (href: string) => {
+    router.prefetch(href)
+  }
 
   const getAvatarInitial = () => {
     return profile?.username.charAt(0).toUpperCase() || "U"
@@ -39,8 +48,16 @@ export const Navbar = () => {
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <div className="w-[48px] h-[48px] flex items-center justify-center overflow-hidden">
-              <Image src="/memomiau_logo.png" alt="Memomiau-Logo" width={100} height={100} className="object-cover" />
+            <div className="w-8 h-8 rounded-full flex items-center justify-center">
+              <Image
+                src={memomiauLogo}
+                alt="Memomiau-Logo"
+                width={100}
+                height={100}
+                className="rounded-full"
+                sizes="32px"
+                placeholder="blur"
+              />
             </div>
             <span className="font-bold text-lg">MemoMiau</span>
           </div>
@@ -52,6 +69,7 @@ export const Navbar = () => {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onMouseEnter={() => preloadRoute(item.href)}
                   className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition">
                   {item.label}
                 </Link>

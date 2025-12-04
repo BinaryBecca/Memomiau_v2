@@ -12,10 +12,12 @@ import { Search, Download, Wand2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import Link from "next/link"
 import LoadingCat from "@/components/cat-loader"
+import { useNotification } from "@/components/ui/notification"
 
 export default function CommunityPage() {
   const { user } = useAuth()
   const { decks, loading, fetchPublicDecks, addDeckToCollection } = useCommunityDecks()
+  const { notify } = useNotification()
   const [searchQuery, setSearchQuery] = useState("")
   const [isAddingDeck, setIsAddingDeck] = useState<string | null>(null)
   const [showLoader, setShowLoader] = useState(true)
@@ -91,7 +93,7 @@ export default function CommunityPage() {
       router.push("/dashboard")
     } catch (error) {
       console.error("Error adding deck:", error)
-      alert("Fehler beim Hinzufügen des Decks")
+      notify("Fehler beim Hinzufügen des Decks")
     } finally {
       setIsAddingDeck(null)
     }

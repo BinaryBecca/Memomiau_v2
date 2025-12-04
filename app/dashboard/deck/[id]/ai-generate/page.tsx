@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Wand2, Dice5, Trash2, Edit2, ArrowLeft } from "lucide-react"
 import { EditCardModal } from "@/components/modals/edit-card-modal"
 import { useCards } from "@/hooks/useCards"
+import { useNotification } from "@/components/ui/notification"
 
 export default function AIGeneratePage() {
   const params = useParams()
@@ -22,6 +23,7 @@ export default function AIGeneratePage() {
   const [saveLoading, setSaveLoading] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [selectedCardIdx, setSelectedCardIdx] = useState<number | null>(null)
+  const { notify } = useNotification()
 
   const handleRandomTopic = async () => {
     setIsLoading(true)
@@ -220,7 +222,7 @@ export default function AIGeneratePage() {
                       }
                       router.push(`/dashboard/deck/${deckId}`)
                     } catch {
-                      alert("Fehler beim Speichern der Karten")
+                      notify("Fehler beim Speichern der Karten")
                     } finally {
                       setSaveLoading(false)
                     }

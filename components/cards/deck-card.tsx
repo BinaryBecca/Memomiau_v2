@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Trash2, Edit2 } from "lucide-react"
 import Link from "next/link"
+import { useNotification } from "@/components/ui/notification"
+import { useConfirm } from "@/components/ui/confirm"
 
 interface DeckCardProps {
   deck: Deck
@@ -17,6 +19,8 @@ interface DeckCardProps {
 
 export const DeckCard = ({ deck, cardCount = 0, onDelete, onEdit }: DeckCardProps) => {
   const [isDeleting, setIsDeleting] = useState(false)
+  const { notify } = useNotification()
+  const { confirm } = useConfirm()
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -24,16 +28,18 @@ export const DeckCard = ({ deck, cardCount = 0, onDelete, onEdit }: DeckCardProp
 
     if (!onDelete) return
 
-    if (!confirm(`Möchtest du das Deck "${deck.name}" wirklich löschen? Dies kann nicht rückgängig gemacht werden.`)) {
-      return
-    }
+    const ok = await confirm({
+      title: "Deck löschen?",
+      description: `Möchtest du das Deck "${deck.name}" wirklich löschen? Dies kann nicht rückgängig gemacht werden.`,
+    })
+    if (!ok) return
 
     try {
       setIsDeleting(true)
       await onDelete(deck.id)
     } catch (error) {
       console.error("Error deleting deck:", error)
-      alert("Fehler beim Löschen des Decks")
+      notify("Fehler beim Löschen des Decks")
     } finally {
       setIsDeleting(false)
     }

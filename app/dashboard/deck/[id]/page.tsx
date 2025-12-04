@@ -15,8 +15,12 @@ import { Card as CardType } from "@/lib/types"
 import { Deck } from "@/lib/types"
 import Link from "next/link"
 import LoadingCat from "@/components/cat-loader"
+import { useNotification } from "@/components/ui/notification"
+import { useConfirm } from "@/components/ui/confirm"
 
 export default function DeckDetailPage() {
+  const { notify } = useNotification()
+  const { confirm } = useConfirm()
   const { fetchPublicDecks } = useCommunityDecks()
   const params = useParams()
   const router = useRouter()
@@ -57,15 +61,14 @@ export default function DeckDetailPage() {
   }, [deckId, fetchCards])
 
   const handleDeleteCard = async (cardId: string) => {
-    if (!confirm("Möchtest du diese Karte wirklich löschen?")) {
-      return
-    }
+    const ok = await confirm({ title: "Karte löschen?", description: "Möchtest du diese Karte wirklich löschen?" })
+    if (!ok) return
 
     try {
       setDeletingCardId(cardId)
       await deleteCard(cardId)
     } catch {
-      alert("Fehler beim Löschen der Karte")
+      notify("Fehler beim Löschen der Karte")
     } finally {
       setDeletingCardId(null)
     }
@@ -90,16 +93,16 @@ export default function DeckDetailPage() {
 
     try {
       await updateDeck(deck.id, deck.name, deck.description || "", true)
-      alert("Deck wurde öffentlich gemacht!")
+      notify("Deck wurde öffentlich gemacht!")
     } catch (error) {
       console.error("Error making deck public:", error)
-      alert("Fehler beim Öffentlichmachen des Decks")
+      notify("Fehler beim Öffentlichmachen des Decks")
     }
   }
 
   const handleUpdateCommunity = () => {
     fetchPublicDecks()
-    alert("Flashcards wurden auf der Community aktualisiert!")
+    notify("Flashcards wurden auf der Community aktualisiert!")
   }
 
   const sortedCards = useMemo(() => {

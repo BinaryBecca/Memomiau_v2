@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Deck } from "@/lib/types"
 import { Card } from "@/lib/types"
 import LoadingCat from "@/components/cat-loader"
+import { useNotification } from "@/components/ui/notification"
 
 export default function CommunityDeckDetailPage() {
   const params = useParams()
@@ -24,6 +25,7 @@ export default function CommunityDeckDetailPage() {
   const [deck, setDeck] = useState<Deck | null>(null)
   const [loading, setLoading] = useState(true)
   const [isAddingDeck, setIsAddingDeck] = useState(false)
+  const { notify } = useNotification()
 
   useEffect(() => {
     const fetchDeck = async () => {
@@ -109,7 +111,7 @@ export default function CommunityDeckDetailPage() {
       router.push("/dashboard")
     } catch (error) {
       console.error("Error adding deck:", error)
-      alert("Fehler beim Hinzufügen des Decks")
+      notify("Fehler beim Hinzufügen des Decks")
     } finally {
       setIsAddingDeck(false)
     }

@@ -237,9 +237,9 @@ export default function DeckDetailPage() {
                     key={card.id}
                     className={`bg-white dark:bg-slate-900 rounded-lg p-4 border dark:border-slate-800 hover:shadow-md transition flex justify-between items-start group ${
                       card.learning_status === "red"
-                        ? "border-red-500"
+                        ? "border-red-500 dark:border-red-400"
                         : card.learning_status === "green"
-                        ? "border-green-500"
+                        ? "border-green-500 dark:border-green-400"
                         : ""
                     }`}>
                     <div className="flex-1">
@@ -261,7 +261,7 @@ export default function DeckDetailPage() {
                           size="icon"
                           onClick={() => handleDeleteCard(card.id)}
                           disabled={deletingCardId === card.id}
-                          className="h-8 w-8 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                          className="h-8 w-8 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>

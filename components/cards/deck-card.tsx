@@ -66,7 +66,7 @@ export const DeckCard = ({ deck, cardCount = 0, onDelete, onEdit }: DeckCardProp
                     variant="ghost"
                     size="icon"
                     onClick={handleEdit}
-                    className="h-8 w-8 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                    className="h-8 w-8 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20">
                     <Edit2 className="w-4 h-4" />
                   </Button>
                 )}
@@ -76,7 +76,7 @@ export const DeckCard = ({ deck, cardCount = 0, onDelete, onEdit }: DeckCardProp
                     size="icon"
                     onClick={handleDelete}
                     disabled={isDeleting}
-                    className="h-8 w-8 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                    className="h-8 w-8 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 )}

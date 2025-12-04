@@ -1,4 +1,5 @@
 import type { NextConfig } from "next"
+import withBundleAnalyzer from "@next/bundle-analyzer"
 
 const supabaseHost = process.env.NEXT_PUBLIC_SUPABASE_URL
   ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
@@ -21,4 +22,6 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig
+export default withBundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+})(nextConfig)

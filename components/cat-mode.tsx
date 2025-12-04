@@ -387,22 +387,14 @@ const RunningCat = ({
   )
 }
 
-const Explosion = ({ explosion }: { explosion: Explosion }) => {
-  const [animationData, setAnimationData] = useState<unknown>(null)
+const Explosion = ({ explosion, animationData }: { explosion: Explosion; animationData: unknown }) => {
   const [showFallback, setShowFallback] = useState(false)
 
   useEffect(() => {
-    fetch("/cat-explosion.json")
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Explosion animation loaded successfully")
-        setAnimationData(data)
-      })
-      .catch((error) => {
-        console.error("Error loading cat-explosion.json:", error)
-        setShowFallback(true)
-      })
-  }, [])
+    if (!animationData) {
+      setShowFallback(true)
+    }
+  }, [animationData])
 
   if (showFallback) {
     return (
@@ -452,6 +444,7 @@ export const CatMode = ({ onGameStarted }: { onGameStarted?: () => void }) => {
   const [celebrationMode, setCelebrationMode] = useState(false)
   const [celebrationEndTime, setCelebrationEndTime] = useState(0)
   const [confettiAnimationData, setConfettiAnimationData] = useState<object | null>(null)
+  const [explosionAnimationData, setExplosionAnimationData] = useState<unknown>(null)
   const catRefs = useRef<Record<number, HTMLDivElement | null>>({})
 
   // Load shared animation data
@@ -471,18 +464,37 @@ export const CatMode = ({ onGameStarted }: { onGameStarted?: () => void }) => {
         console.error("Error loading shared dance-cat.json:", error)
         // Don't set fallback here - let the component handle it
       })
-
-    // Load confetti animation data
-    fetch("/confetti-cat.json")
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Confetti cat animation loaded successfully")
-        setConfettiAnimationData(data)
-      })
-      .catch((error) => {
-        console.error("Error loading confetti-cat.json:", error)
-      })
   }, [])
+
+  // Load explosion animation data only when first explosion occurs
+  useEffect(() => {
+    if (explosions.length > 0 && !explosionAnimationData) {
+      fetch("/cat-explosion.json")
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Explosion animation loaded successfully")
+          setExplosionAnimationData(data)
+        })
+        .catch((error) => {
+          console.error("Error loading cat-explosion.json:", error)
+        })
+    }
+  }, [explosions.length, explosionAnimationData])
+
+  // Load confetti animation data only when celebration mode is activated
+  useEffect(() => {
+    if (celebrationMode && !confettiAnimationData) {
+      fetch("/confetti-cat.json")
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Confetti cat animation loaded successfully")
+          setConfettiAnimationData(data)
+        })
+        .catch((error) => {
+          console.error("Error loading confetti-cat.json:", error)
+        })
+    }
+  }, [celebrationMode, confettiAnimationData])
 
   // Handle celebration mode timing
   useEffect(() => {
@@ -765,7 +777,7 @@ export const CatMode = ({ onGameStarted }: { onGameStarted?: () => void }) => {
           />
         ))}
       {explosions.map((explosion) => (
-        <Explosion key={explosion.id} explosion={explosion} />
+        <Explosion key={explosion.id} explosion={explosion} animationData={explosionAnimationData} />
       ))}
       {showClickText && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">

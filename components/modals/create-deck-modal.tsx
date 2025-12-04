@@ -43,7 +43,7 @@ export const CreateDeckModal = ({ open, onOpenChange, onCreateDeck, isLoading = 
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-white">
+      <Card className="w-full max-w-md bg-white dark:bg-slate-900">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <div>
             <CardTitle>Neues Deck</CardTitle>
@@ -52,7 +52,7 @@ export const CreateDeckModal = ({ open, onOpenChange, onCreateDeck, isLoading = 
           <button
             onClick={() => onOpenChange(false)}
             className="p-1 hover:bg-gray-200 dark:hover:bg-slate-800 rounded transition">
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 text-gray-700 dark:text-white" />
           </button>
         </CardHeader>
 

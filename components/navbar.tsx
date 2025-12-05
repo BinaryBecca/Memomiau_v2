@@ -50,7 +50,7 @@ export const Navbar = () => {
               <div className="w-[48px] h-[48px] flex items-center justify-center overflow-hidden">
                 <Image src="/memomiau_logo.png" alt="Memomiau-Logo" width={100} height={100} className="object-cover" />
               </div>
-              <span className="font-bold text-lg">MemoMiau</span>
+              <span className="heading font-extrabold text-lg">MemoMiau</span>
             </Link>
           </div>
 

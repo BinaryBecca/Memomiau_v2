@@ -23,7 +23,6 @@ export const Navbar = () => {
   const { user, profile, signOut } = useAuth()
   const { theme, setTheme } = useTheme()
   const [catMode, setCatMode] = useState(false)
-  const [gameStarted, setGameStarted] = useState(false)
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
 
@@ -42,7 +41,7 @@ export const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-50 border-b bg-white dark:bg-slate-950 dark:border-slate-800">
-      {catMode && <CatMode onGameStarted={() => setGameStarted(true)} />}
+      {catMode && <CatMode onGameStarted={() => {}} />}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
@@ -95,10 +94,6 @@ export const Navbar = () => {
                 <button
                   onClick={() => {
                     setCatMode(!catMode)
-                    if (catMode) {
-                      // Reset game started when turning off cat mode
-                      setGameStarted(false)
-                    }
                   }}
                   className={`p-1 sm:p-2 rounded-lg transition ${
                     catMode ? "bg-pink-200 dark:bg-pink-900" : "hover:bg-gray-100 dark:hover:bg-slate-800"

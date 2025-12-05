@@ -466,20 +466,18 @@ export const CatMode = ({ onGameStarted }: { onGameStarted?: () => void }) => {
       })
   }, [])
 
-  // Load explosion animation data only when first explosion occurs
+  // Load explosion animation data on mount
   useEffect(() => {
-    if (explosions.length > 0 && !explosionAnimationData) {
-      fetch("/cat-explosion.json")
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Explosion animation loaded successfully")
-          setExplosionAnimationData(data)
-        })
-        .catch((error) => {
-          console.error("Error loading cat-explosion.json:", error)
-        })
-    }
-  }, [explosions.length, explosionAnimationData])
+    fetch("/cat-explosion.json")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Explosion animation loaded successfully")
+        setExplosionAnimationData(data)
+      })
+      .catch((error) => {
+        console.error("Error loading cat-explosion.json:", error)
+      })
+  }, [])
 
   // Load confetti animation data only when celebration mode is activated
   useEffect(() => {
@@ -663,8 +661,6 @@ export const CatMode = ({ onGameStarted }: { onGameStarted?: () => void }) => {
 
           const distance = Math.sqrt(Math.pow(center1X - center2X, 2) + Math.pow(center1Y - center2Y, 2))
 
-          console.log(`📏 Distance between cat ${cat1.id} and cat ${cat2.id}: ${distance.toFixed(1)}px`)
-
           // Check for collision based on bounding box overlap
           // Two cats collide if their bounding boxes overlap
           const overlapX = Math.abs(center1X - center2X) < (cat1.rect.width + cat2.rect.width) / 2
@@ -684,10 +680,6 @@ export const CatMode = ({ onGameStarted }: { onGameStarted?: () => void }) => {
               cat2.rect.bottom <= window.innerHeight
 
             if (!cat1FullyVisible || !cat2FullyVisible) {
-              console.log("🚫 Collision ignored - cats not fully on screen", {
-                cat1: { id: cat1.id, fullyVisible: cat1FullyVisible },
-                cat2: { id: cat2.id, fullyVisible: cat2FullyVisible },
-              })
               continue // Skip this collision
             }
 

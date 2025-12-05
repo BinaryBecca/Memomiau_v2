@@ -41,19 +41,19 @@ export const FlashcardDisplay = ({
           transitionDuration: disableFlipAnimation ? "0ms" : undefined,
         }}>
         <div
-          className="row-start-1 col-start-1 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg shadow-lg p-8 flex flex-col justify-center items-center text-white"
+          className="row-start-1 col-start-1 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg shadow-lg p-6 sm:p-8 flex flex-col justify-center items-center text-white"
           style={{ backfaceVisibility: "hidden" }}>
-          <p className="text-sm font-semibold uppercase tracking-wider text-purple-200 mb-4">Frage</p>
-          <p className="text-2xl font-bold text-center break-words">{card.front}</p>
-          <p className="text-sm text-purple-200 mt-8">Klicken zum Umdrehen</p>
+          <p className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-purple-200 mb-3">Frage</p>
+          <p className="text-xl sm:text-2xl font-bold text-center break-words">{card.front}</p>
+          <p className="text-xs sm:text-sm text-purple-200 mt-6">Klicken zum Umdrehen</p>
         </div>
 
         <div
-          className="row-start-1 col-start-1 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg shadow-lg p-8 flex flex-col justify-center items-center text-white"
+          className="row-start-1 col-start-1 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg shadow-lg p-6 sm:p-8 flex flex-col justify-center items-center text-white"
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
-          <p className="text-sm font-semibold uppercase tracking-wider text-blue-200 mb-4">Antwort</p>
-          <p className="text-2xl font-bold text-center break-words">{card.back}</p>
-          <p className="text-sm text-blue-200 mt-8">Klicken zum Zurückdrehen</p>
+          <p className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-blue-200 mb-3">Antwort</p>
+          <p className="text-xl sm:text-2xl font-bold text-center break-words">{card.back}</p>
+          <p className="text-xs sm:text-sm text-blue-200 mt-6">Klicken zum Zurückdrehen</p>
         </div>
       </div>
 

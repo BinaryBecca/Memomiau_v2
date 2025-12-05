@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft, RotateCcw } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import CompletionModal from "@/components/modals/completion-modal"
 import { Card } from "@/lib/types"
 import LoadingCat from "@/components/cat-loader"
 
@@ -234,13 +233,35 @@ export default function LearnPage() {
         </div>
       </div>
 
-      <CompletionModal
-        open={showCompletionModal}
-        onOpenChange={setShowCompletionModal}
-        deckId={deckId}
-        completedCount={completedCount}
-        onRepeat={handleRepeat}
-      />
+      {/* Completion Modal */}
+      {showCompletionModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-lg overflow-hidden">
+            <div className="p-6 text-center">
+              <div className="w-full mb-4">
+                <Image
+                  src="/memomiau_hero.png"
+                  alt="Memomiau Hero"
+                  width={520}
+                  height={312}
+                  className="mx-auto rounded-md object-cover"
+                  priority
+                />
+              </div>
+              <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">Herzlichen Glückwunsch!</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">Du hast {completedCount} Karten gelernt!</p>
+              <div className="flex space-x-3 justify-center">
+                <Button className="border border-black">
+                  <Link href={`/dashboard/deck/${deckId}`}>Zurück zum Deck</Link>
+                </Button>
+                <Button onClick={handleRepeat} variant="pink">
+                  Nochmal lernen
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

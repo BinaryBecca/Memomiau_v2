@@ -59,7 +59,7 @@ export const DeckCard = memo(({ deck, cardCount = 0, onDelete, onEdit }: DeckCar
 
   return (
     <Link href={`/dashboard/deck/${deck.id}`}>
-      <Card className="hover:shadow-lg transition cursor-pointer h-full group">
+      <Card className="hover:shadow-lg transition cursor-pointer h-full group relative">
         <CardHeader>
           <div className="flex justify-between items-start">
             <div className="flex-1">
@@ -72,13 +72,13 @@ export const DeckCard = memo(({ deck, cardCount = 0, onDelete, onEdit }: DeckCar
                   Öffentlich
                 </Badge>
               )}
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+              <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex gap-1">
                 {onEdit && (
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={handleEdit}
-                    className="h-8 w-8 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                    className="h-7 w-7 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 p-0">
                     <Edit2 className="w-4 h-4" />
                   </Button>
                 )}
@@ -88,7 +88,7 @@ export const DeckCard = memo(({ deck, cardCount = 0, onDelete, onEdit }: DeckCar
                     size="icon"
                     onClick={handleDelete}
                     disabled={isDeleting}
-                    className="h-8 w-8 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
+                    className="h-7 w-7 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 p-0">
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 )}

@@ -1,13 +1,25 @@
 "use client"
 
 import { useCallback, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { createBrowserClient } from "@supabase/ssr"
+import { Database } from "@/database.types"
 import { CardLearningStatus } from "@/lib/types"
 
 export const useLearningStatus = (userId: string | undefined) => {
   const [statuses, setStatuses] = useState<CardLearningStatus[]>([])
   const [loading, setLoading] = useState(false)
-  const supabase = createClient()
+  const supabase = createBrowserClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    {
+      global: {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      },
+    }
+  )
 
   const fetchStatuses = useCallback(
     async (cardIds?: string[]) => {
@@ -63,6 +75,7 @@ export const useLearningStatus = (userId: string | undefined) => {
               card_id: cardId,
               user_id: userId,
               status,
+              updated_at: new Date().toISOString(),
             },
           ])
           .select()

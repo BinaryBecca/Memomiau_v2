@@ -6,7 +6,7 @@ import { useAuth } from "./useAuth"
 
 const getStartOfDay = (date: Date) => {
   const newDate = new Date(date)
-  newDate.setHours(0, 0, 0, 0)
+  newDate.setUTCHours(0, 0, 0, 0)
   return newDate
 }
 
@@ -99,25 +99,45 @@ export const useAchievements = () => {
       }
 
       if (data && data.length > 0) {
-        const today = getStartOfDay(new Date())
+        const now = new Date()
+        const today = getStartOfDay(now)
         const oneDay = 24 * 60 * 60 * 1000
         const sevenDaysAgo = new Date(today.getTime() - 6 * oneDay)
-        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+        const startOfMonth = new Date(now.getUTCFullYear(), now.getUTCMonth(), 1)
 
-        const learningTimestamps = data.map((item) => new Date(item.updated_at!).getTime())
+        // Filter out invalid timestamps and convert to UTC dates
+        const validData = data.filter((item) => item.updated_at)
+        const learningTimestamps = validData.map((item) => {
+          const date = new Date(item.updated_at!)
+          // Keep as UTC timestamp for activity counting
+          return date.getTime()
+        })
 
-        const daily = learningTimestamps.filter(
-          (ts) => getStartOfDay(new Date(ts)).getTime() === today.getTime()
-        ).length
-        const weekly = learningTimestamps.filter((ts) => new Date(ts) >= sevenDaysAgo).length
-        const monthly = learningTimestamps.filter((ts) => new Date(ts) >= startOfMonth).length
-        const totalCards = new Set(data.map((item) => item.card_id)).size
+        // Create unique days for learning days calculation
+        const uniqueDays = [
+          ...new Set(
+            validData.map((item) => {
+              const date = new Date(item.updated_at!)
+              return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
+            })
+          ),
+        ]
 
-        const sortedUniqueDates = [
-          ...new Set(data.map((item) => getStartOfDay(new Date(item.updated_at!)).getTime())),
-        ].sort((a, b) => b - a)
+        const daily = learningTimestamps.filter((ts) => {
+          const tsDate = new Date(ts)
+          return (
+            tsDate.getUTCFullYear() === now.getUTCFullYear() &&
+            tsDate.getUTCMonth() === now.getUTCMonth() &&
+            tsDate.getUTCDate() === now.getUTCDate()
+          )
+        }).length
+        const weekly = learningTimestamps.filter((ts) => ts >= sevenDaysAgo.getTime()).length
+        const monthly = learningTimestamps.filter((ts) => ts >= startOfMonth.getTime()).length
+        const totalCards = data.length // Count all learning attempts, not just unique cards
 
-        const learningDaysThisMonth = sortedUniqueDates.filter((d) => d >= startOfMonth.getTime()).length
+        const sortedUniqueDates = uniqueDays.sort((a, b) => b - a)
+        const startOfMonthUTC = new Date(now.getUTCFullYear(), now.getUTCMonth(), 1)
+        const learningDaysThisMonth = sortedUniqueDates.filter((d) => d >= startOfMonthUTC.getTime()).length
 
         // Calculate streak
         let streak = 0
@@ -146,9 +166,14 @@ export const useAchievements = () => {
         for (let i = 0; i < 30; i++) {
           const date = new Date(today.getTime() - i * oneDay)
           const dateStr = date.toISOString().split("T")[0]
-          const count = learningTimestamps.filter(
-            (ts) => getStartOfDay(new Date(ts)).getTime() === date.getTime()
-          ).length
+          const count = learningTimestamps.filter((ts) => {
+            const tsDate = new Date(ts)
+            return (
+              tsDate.getUTCFullYear() === date.getUTCFullYear() &&
+              tsDate.getUTCMonth() === date.getUTCMonth() &&
+              tsDate.getUTCDate() === date.getUTCDate()
+            )
+          }).length
           dailyData.push({ date: dateStr, count })
         }
 

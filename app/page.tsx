@@ -48,7 +48,6 @@ export default function LandingPage() {
                     width={60}
                     height={60}
                     className="rounded-full"
-                    priority={true}
                     sizes="80px"
                   />
                 </div>
@@ -78,7 +77,6 @@ export default function LandingPage() {
               width={104}
               height={104}
               className="rounded-full"
-              priority
             />
           </div>
         </div>

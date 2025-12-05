@@ -63,7 +63,7 @@ export const DeckCard = memo(({ deck, cardCount = 0, onDelete, onEdit }: DeckCar
         <CardHeader>
           <div className="flex justify-between items-start">
             <div className="flex-1">
-              <CardTitle className="text-lg">{deck.name}</CardTitle>
+              <CardTitle className="text-lg heading font-extrabold">{deck.name}</CardTitle>
               <CardDescription className="mt-1">{cardCount} Karten</CardDescription>
             </div>
             <div className="flex items-center gap-2">

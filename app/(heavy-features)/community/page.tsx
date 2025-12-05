@@ -147,7 +147,7 @@ export default function CommunityPage() {
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <CardTitle className="text-lg">{deck.name}</CardTitle>
+                        <CardTitle className="text-lg heading font-extrabold">{deck.name}</CardTitle>
                         <CardDescription className="mt-1">
                           Von: {deck.profiles?.username ?? "Unbekannt"}
                         </CardDescription>

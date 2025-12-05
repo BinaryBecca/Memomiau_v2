@@ -161,7 +161,7 @@ export const LearnDeckModal = ({ open, onOpenChange, deckId, cardCount }: LearnD
             />
           </div>
 
-          <Button onClick={handleStart} className="w-full">
+          <Button onClick={handleStart} className="w-full" variant="pink">
             Lernsitzung starten
           </Button>
         </CardContent>

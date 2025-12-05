@@ -96,7 +96,11 @@ export const EditCardModal = ({ open, onOpenChange, card, onEditCard, isLoading 
             </div>
 
             <div className="flex space-x-2 pt-4">
-              <Button type="submit" disabled={isLoading || !front.trim() || !back.trim()} className="flex-1">
+              <Button
+                type="submit"
+                disabled={isLoading || !front.trim() || !back.trim()}
+                className="flex-1"
+                variant="pink">
                 {isLoading ? "Wird aktualisiert..." : "Speichern"}
               </Button>
               <Button

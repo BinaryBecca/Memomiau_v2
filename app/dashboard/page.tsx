@@ -97,7 +97,7 @@ export default function DashboardPage() {
               <Upload className="w-4 h-4" />
               <span className="hidden sm:inline">Importieren</span>
             </Button>
-            <Button onClick={() => setModalOpen(true)} className="flex items-center space-x-2">
+            <Button onClick={() => setModalOpen(true)} className="flex items-center space-x-2" variant="pink">
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Erstellen</span>
             </Button>
@@ -116,7 +116,7 @@ export default function DashboardPage() {
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               Erstelle dein erstes Deck, um mit dem Lernen zu beginnen
             </p>
-            <Button onClick={() => setModalOpen(true)}>
+            <Button onClick={() => setModalOpen(true)} variant="pink">
               <Plus className="w-4 h-4 mr-2" />
               Neues Deck erstellen
             </Button>

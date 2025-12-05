@@ -99,7 +99,7 @@ export const CreateDeckModal = ({ open, onOpenChange, onCreateDeck, isLoading = 
             </div>
 
             <div className="flex space-x-2 pt-4">
-              <Button type="submit" disabled={isLoading || !deckName.trim()} className="w-full">
+              <Button type="submit" disabled={isLoading || !deckName.trim()} className="w-full" variant="pink">
                 {isLoading ? "Wird erstellt..." : "Neues Deck erstellen"}
               </Button>
             </div>

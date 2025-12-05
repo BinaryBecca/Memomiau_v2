@@ -40,10 +40,10 @@ export default function ConfirmDialog({
 
         <CardContent>
           <div className="flex justify-end gap-2">
-            <button onClick={onCancel} className="px-4 py-2 rounded bg-slate-100 dark:bg-slate-700 text-sm">
+            <button onClick={onCancel} className="px-4 py-2  bg-slate-100 dark:bg-slate-700 text-sm">
               {cancelLabel}
             </button>
-            <button onClick={onConfirm} className="px-4 py-2 rounded bg-red-600 text-white text-sm">
+            <button onClick={onConfirm} className="px-4 py-2 bg-[#f785db] text-white text-sm">
               {confirmLabel}
             </button>
           </div>

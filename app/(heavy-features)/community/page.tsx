@@ -172,7 +172,8 @@ export default function CommunityPage() {
                         }}
                         disabled={isAddingDeck === deck.id}
                         className="w-full"
-                        size="sm">
+                        size="sm"
+                        variant="pink">
                         <Download className="w-4 h-4 mr-2" />
                         {isAddingDeck === deck.id ? "Wird hinzugefügt..." : "Hinzufügen"}
                       </Button>

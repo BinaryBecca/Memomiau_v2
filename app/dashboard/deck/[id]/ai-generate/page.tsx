@@ -132,7 +132,8 @@ export default function AIGeneratePage() {
               <Button
                 type="submit"
                 disabled={isLoading || !topic.trim()}
-                className="flex-1 flex items-center justify-center space-x-2">
+                className="flex-1 flex items-center justify-center space-x-2"
+                variant="pink">
                 <Wand2 className="w-4 h-4" />
                 <span>{isLoading ? "Wird generiert..." : "Generieren"}</span>
               </Button>
@@ -228,7 +229,8 @@ export default function AIGeneratePage() {
                     }
                   }}
                   disabled={saveLoading}
-                  className="px-6 py-2 font-semibold ml-4">
+                  className="px-6 py-2 font-semibold ml-4"
+                  variant="pink">
                   {saveLoading ? "Speichern..." : "Speichern"}
                 </Button>
               </div>

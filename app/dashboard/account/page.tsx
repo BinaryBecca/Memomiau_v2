@@ -279,7 +279,7 @@ export default function AccountPage() {
                 <div className="text-sm text-gray-600 dark:text-gray-400">{formData.email || user?.email || "-"}</div>
 
                 <div className="flex flex-col sm:flex-row gap-2 mt-2">
-                  <Button type="submit" disabled={isLoading} size="sm" className="w-full sm:w-auto">
+                  <Button type="submit" disabled={isLoading} size="sm" className="w-full sm:w-auto" variant="pink">
                     {isLoading ? "Speichern..." : "Speichern"}
                   </Button>
                   <Button

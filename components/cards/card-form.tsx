@@ -102,7 +102,7 @@ export const CardForm = ({ deckId, onSave, isLoading = false }: CardFormProps) =
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 pt-4 border-t dark:border-slate-700">
               <div className="flex-1" />
-              <Button type="submit" disabled={isLoading || !front.trim() || !back.trim()}>
+              <Button type="submit" disabled={isLoading || !front.trim() || !back.trim()} variant="pink">
                 Erstellen
               </Button>
             </div>

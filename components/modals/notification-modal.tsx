@@ -29,7 +29,7 @@ export default function NotificationModal({ open, title, description, onClose }:
 
         <CardContent>
           <div className="text-right">
-            <button onClick={onClose} className="px-4 py-2 rounded bg-slate-100 dark:bg-slate-700 text-sm">
+            <button onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-sm">
               Schließen
             </button>
           </div>

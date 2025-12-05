@@ -196,7 +196,7 @@ export const SignupForm = () => {
                 />
               </div>
 
-              <Button type="submit" disabled={loading} className="w-full">
+              <Button type="submit" disabled={loading} className="w-full" variant="pink">
                 {loading ? "Erstelle Konto..." : "Konto erstellen"}
               </Button>
             </form>

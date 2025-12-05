@@ -200,7 +200,7 @@ export default function DeckDetailPage() {
           <div className="space-y-4">
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
-              <Button onClick={() => setLearnModalOpen(true)} className="flex-1">
+              <Button onClick={() => setLearnModalOpen(true)} className="flex-1" variant="pink">
                 <BookOpen className="w-4 h-4 mr-2" />
                 Karten lernen
               </Button>
@@ -220,11 +220,11 @@ export default function DeckDetailPage() {
                     </Link>
                   </Button>
                   {deck.is_public ? (
-                    <Button variant="default" className="flex-1" onClick={handleUpdateCommunity}>
+                    <Button variant="outline" className="flex-1" onClick={handleUpdateCommunity}>
                       Auf Community aktualisieren
                     </Button>
                   ) : (
-                    <Button variant="default" className="flex-1" onClick={handleMakeDeckPublic}>
+                    <Button variant="outline" className="flex-1" onClick={handleMakeDeckPublic}>
                       Deck öffentlich machen
                     </Button>
                   )}

@@ -76,7 +76,7 @@ export const LoginForm = () => {
                 />
               </div>
 
-              <Button type="submit" disabled={loading} className="w-full">
+              <Button type="submit" disabled={loading} className="w-full" variant="pink">
                 {loading ? "Anmeldung..." : "Anmelden"}
               </Button>
             </form>

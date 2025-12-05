@@ -118,7 +118,7 @@ export const EditDeckModal = ({ open, onOpenChange, deck, onEditDeck, isLoading 
             </div>
 
             <div className="flex space-x-2 pt-4">
-              <Button type="submit" disabled={isLoading || !deckName.trim()} className="flex-1">
+              <Button type="submit" disabled={isLoading || !deckName.trim()} className="flex-1" variant="pink">
                 {isLoading ? "Wird aktualisiert..." : "Speichern"}
               </Button>
               <Button

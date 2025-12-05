@@ -4,7 +4,6 @@ import { Navbar } from "@/components/navbar"
 import { ThemeProvider } from "next-themes"
 import ChatbotFABClient from "@/components/ui/chatbot-fab-client"
 import ChatProviderWrapper from "@/components/chat/ChatProviderWrapper"
-import "./globals.css"
 import { NotificationProvider } from "@/components/ui/notification"
 // NotificationModal is rendered by NotificationProvider
 import ConfirmProvider from "@/components/ui/confirm"
@@ -18,7 +17,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "MemoMiau",
   description: "Learn with Flashcards",
-  manifest: "/manifest.json",
+  icons: {
+    icon: "/memomiau_favicon.png",
+    shortcut: "/memomiau_favicon.png",
+    apple: "/memomiau_favicon.png",
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

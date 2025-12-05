@@ -46,17 +46,12 @@ export const Navbar = () => {
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center">
-              <Image
-                src="/memomiau_logo.png"
-                alt="Memomiau-Logo"
-                width={100}
-                height={100}
-                className="rounded-full"
-                sizes="32px"
-              />
-            </div>
-            <span className="font-bold text-lg">MemoMiau</span>
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-[48px] h-[48px] flex items-center justify-center overflow-hidden">
+                <Image src="/memomiau_logo.png" alt="Memomiau-Logo" width={100} height={100} className="object-cover" />
+              </div>
+              <span className="font-bold text-lg">MemoMiau</span>
+            </Link>
           </div>
 
           {/* Navigation Links */}
@@ -75,22 +70,19 @@ export const Navbar = () => {
           )}
 
           {/* Right side: Theme, Cat Mode, Auth */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-1">
             {/* Theme Toggle */}
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className="p-1 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 transition">
-              {mounted &&
-                (theme === "dark" ? (
-                  <Sun className="w-4 h-4 sm:w-5 sm:h-5" />
-                ) : (
-                  <Moon className="w-4 h-4 sm:w-5 sm:h-5" />
-                ))}
+              <div className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center">
+                {mounted && (theme === "dark" ? <Sun className="w-full h-full" /> : <Moon className="w-full h-full" />)}
+              </div>
             </button>
 
             {/* Cat Mode */}
             {user && (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center mr-3 sm:mr-4">
                 <button
                   onClick={() => {
                     setCatMode(!catMode)
@@ -99,7 +91,7 @@ export const Navbar = () => {
                     catMode ? "bg-pink-200 dark:bg-pink-900" : "hover:bg-gray-100 dark:hover:bg-slate-800"
                   }`}
                   title="Cat Mode">
-                  <div className="w-5 h-5 sm:w-7 sm:h-7 flex items-center justify-center">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center">
                     {mounted ? (
                       <Image
                         src={
@@ -110,16 +102,16 @@ export const Navbar = () => {
                             : "/icon_catmode_paws_black.svg"
                         }
                         alt="Cat Mode"
-                        width={28}
-                        height={28}
+                        width={24}
+                        height={24}
                         className="object-contain"
                       />
                     ) : (
                       <Image
                         src="/icon_catmode_paws_white.svg"
                         alt="Cat Mode"
-                        width={28}
-                        height={28}
+                        width={24}
+                        height={24}
                         className="object-contain"
                       />
                     )}
@@ -156,12 +148,16 @@ export const Navbar = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2">
+              <div className="flex space-x-2 ">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 ml-2">
                   <Link href="/auth/login">Login</Link>
                 </Button>
                 <Button size="sm" asChild className="hidden sm:block text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2">
-                  <Link href="/auth/signup">Get Started</Link>
+                  <Link href="/auth/signup">Jetzt starten</Link>
                 </Button>
               </div>
             )}

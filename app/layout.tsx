@@ -11,6 +11,11 @@ import ConfirmProvider from "@/components/ui/confirm"
 export const metadata: Metadata = {
   title: "MemoMiau",
   description: "Learn with Flashcards",
+  icons: {
+    icon: "/memomiau_favicon.png",
+    shortcut: "/memomiau_favicon.png",
+    apple: "/memomiau_favicon.png",
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

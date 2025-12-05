@@ -42,7 +42,7 @@ export default function LandingPage() {
             Lerne effizienter mit Flashcards. Erstelle, teile und beherrsche jedes Thema mit KI-unterstütztem Lernen.
           </p>
           <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 justify-center">
-            <Button size="lg" asChild>
+            <Button size="lg" variant="pink" asChild>
               <Link href="/auth/signup">Kostenlos starten</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
@@ -106,7 +106,7 @@ export default function LandingPage() {
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-12 text-center text-white">
           <h2 className="text-3xl font-bold mb-4">Bereit zum Lernen?</h2>
           <p className="text-lg mb-8 text-purple-100">Starte jetzt und verbessere dein Lernverhalten</p>
-          <Button size="lg" variant="secondary" asChild>
+          <Button size="lg" variant="pink" asChild>
             <Link href="/auth/signup">Jetzt kostenlos anmelden</Link>
           </Button>
         </div>

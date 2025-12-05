@@ -153,10 +153,14 @@ export const Navbar = () => {
                   variant="outline"
                   size="sm"
                   asChild
-                  className="text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 ml-2">
+                  className="h-8 inline-flex items-center justify-center text-xs sm:text-sm px-3 ml-2">
                   <Link href="/auth/login">Login</Link>
                 </Button>
-                <Button size="sm" asChild className="hidden sm:block text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2">
+                <Button
+                  size="sm"
+                  variant="pink"
+                  asChild
+                  className="hidden sm:inline-flex h-8 items-center justify-center text-xs sm:text-sm px-3">
                   <Link href="/auth/signup">Jetzt starten</Link>
                 </Button>
               </div>

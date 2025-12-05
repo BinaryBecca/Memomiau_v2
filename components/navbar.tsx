@@ -44,11 +44,17 @@ export const Navbar = () => {
       {catMode && <CatMode onGameStarted={() => {}} />}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
-          {/* Logo */}
           <div className="flex items-center space-x-2">
             <Link href="/" className="flex items-center space-x-2">
               <div className="w-[48px] h-[48px] flex items-center justify-center overflow-hidden">
-                <Image src="/memomiau_logo.png" alt="Memomiau-Logo" width={100} height={100} className="object-cover" />
+                <Image
+                  src="/memomiau_logo.png"
+                  alt="Memomiau-Logo"
+                  width={100}
+                  height={100}
+                  className="object-cover"
+                  priority
+                />
               </div>
               <span className="font-bold text-lg">MemoMiau</span>
             </Link>

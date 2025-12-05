@@ -8,6 +8,9 @@ import { useLearningStatus } from "@/hooks/useLearningStatus"
 import { FlashcardDisplay } from "@/components/cards/flashcard-display"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, RotateCcw } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import CompletionModal from "@/components/modals/completion-modal"
 import { Card } from "@/lib/types"
 import LoadingCat from "@/components/cat-loader"
 
@@ -27,6 +30,7 @@ export default function LearnPage() {
   const [isUpdating, setIsUpdating] = useState(false)
   const [progress, setProgress] = useState({ green: 0, yellow: 0, red: 0 })
   const [disableNextFlip, setDisableNextFlip] = useState(false)
+  const [showCompletionModal, setShowCompletionModal] = useState(false)
   // ...existing code...
   const [timeLeft, setTimeLeft] = useState<number | null>(null)
   const [timerActive, setTimerActive] = useState(false)
@@ -125,10 +129,10 @@ export default function LearnPage() {
         // Re-enable animation on the next tick
         setTimeout(() => setDisableNextFlip(false), 50)
       } else {
-        // Learning session completed
+        // Learning session completed -> show completion modal
         setTimeout(() => {
-          router.push(`/dashboard/deck/${deckId}`)
-        }, 1000)
+          setShowCompletionModal(true)
+        }, 500)
       }
     } catch (error) {
       console.error("Error updating status:", error)
@@ -138,6 +142,13 @@ export default function LearnPage() {
   }
 
   const handleReset = () => {
+    setCurrentIndex(0)
+    setProgress({ green: 0, yellow: 0, red: 0 })
+  }
+
+  const handleRepeat = () => {
+    setShowCompletionModal(false)
+    // restart session
     setCurrentIndex(0)
     setProgress({ green: 0, yellow: 0, red: 0 })
   }
@@ -168,6 +179,7 @@ export default function LearnPage() {
 
   const currentCard = cardsToLearn[currentIndex]
   const progressPercent = ((currentIndex + 1) / cardsToLearn.length) * 100
+  const completedCount = progress.green + progress.red
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 dark:from-slate-950 dark:to-slate-900">
@@ -221,6 +233,14 @@ export default function LearnPage() {
           </Button>
         </div>
       </div>
+
+      <CompletionModal
+        open={showCompletionModal}
+        onOpenChange={setShowCompletionModal}
+        deckId={deckId}
+        completedCount={completedCount}
+        onRepeat={handleRepeat}
+      />
     </div>
   )
 }

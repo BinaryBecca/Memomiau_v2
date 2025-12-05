@@ -270,7 +270,7 @@ export default function DeckDetailPage() {
                     </div>
                     {/* Nur Besitzer kann Karten bearbeiten/löschen */}
                     {user?.id === deck.owner && (
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity ml-4 flex gap-1 flex-shrink-0">
+                      <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100  transition-opacity ml-4 flex gap-1 flex-shrink-0">
                         <Button
                           variant="ghost"
                           size="icon"

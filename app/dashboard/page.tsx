@@ -89,7 +89,7 @@ export default function DashboardPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Meine Decks</h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">{decks.length} Decks insgesamt</p>
+            <p className="text-purple-600 dark:text-gray-400 mt-2">{decks.length} Decks insgesamt</p>
           </div>
 
           <div className="flex space-x-3">

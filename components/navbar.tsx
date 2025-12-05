@@ -39,10 +39,12 @@ export const Navbar = () => {
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <div className="w-[48px] h-[48px] flex items-center justify-center overflow-hidden">
-              <Image src="/memomiau_logo.png" alt="Memomiau-Logo" width={100} height={100} className="object-cover" />
-            </div>
-            <span className="font-bold text-lg">MemoMiau</span>
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-[48px] h-[48px] flex items-center justify-center overflow-hidden">
+                <Image src="/memomiau_logo.png" alt="Memomiau-Logo" width={100} height={100} className="object-cover" />
+              </div>
+              <span className="font-bold text-lg">MemoMiau</span>
+            </Link>
           </div>
 
           {/* Navigation Links */}

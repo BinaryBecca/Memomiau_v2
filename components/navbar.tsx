@@ -153,7 +153,7 @@ export const Navbar = () => {
                   <Link href="/auth/login">Login</Link>
                 </Button>
                 <Button size="sm" asChild className="hidden sm:block text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2">
-                  <Link href="/auth/signup">Get Started</Link>
+                  <Link href="/auth/signup">Jetzt starten</Link>
                 </Button>
               </div>
             )}

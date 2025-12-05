@@ -102,8 +102,8 @@ export const SignupForm = () => {
       ) : (
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-2">
-            <CardTitle className="text-2xl">Create Account</CardTitle>
-            <CardDescription>Join MemoMiau and start learning</CardDescription>
+            <CardTitle className="text-2xl">Konto erstellen</CardTitle>
+            <CardDescription>Registriere dich jetzt und starte deine Lernenreise mit MemoMiau!</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {error && (
@@ -142,37 +142,37 @@ export const SignupForm = () => {
               {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="firstName">Vorname</Label>
                   <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <Label htmlFor="lastName">Nachname</Label>
                   <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required />
                 </div>
               </div>
 
               {/* Username */}
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">Benutzername</Label>
                 <Input
                   id="username"
                   name="username"
                   value={formData.username}
                   onChange={handleChange}
-                  placeholder="Your unique username"
+                  placeholder="Dein einzigartiger Benutzername"
                   required
                 />
               </div>
 
               {/* Email */}
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">E-Mail</Label>
                 <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
               </div>
 
               {/* Password */}
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Passwort</Label>
                 <Input
                   id="password"
                   name="password"
@@ -185,7 +185,7 @@ export const SignupForm = () => {
 
               {/* Confirm Password */}
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword">Passwort bestätigen</Label>
                 <Input
                   id="confirmPassword"
                   name="confirmPassword"
@@ -197,7 +197,7 @@ export const SignupForm = () => {
               </div>
 
               <Button type="submit" disabled={loading} className="w-full">
-                {loading ? "Creating account..." : "Create Account"}
+                {loading ? "Erstelle Konto..." : "Konto erstellen"}
               </Button>
             </form>
 
@@ -205,9 +205,9 @@ export const SignupForm = () => {
 
             {/* Login Link */}
             <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-              Already have an account?{" "}
+              Du hast bereits ein Konto?{" "}
               <Link href="/auth/login" className="text-purple-600 dark:text-purple-400 hover:underline">
-                Login
+                Hier geht's zum Login
               </Link>
             </p>
           </CardContent>

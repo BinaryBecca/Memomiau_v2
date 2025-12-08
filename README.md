@@ -2,8 +2,7 @@
 
 Eine moderne Lernkarten-Webanwendung mit AI-Unterstützung – spielerisch lernen mit einer motivierenden Katzen-KI und Community-Features.
 
-<img width="1240" height="764" alt="memomiau_start" src="https://github.com/user-attachments/assets/13220609-560a-49c1-b82a-691dafbb5c39" />
-
+<img width="1240" height="764" alt="memomiau_start" src="https://github.com/user-attachments/assets/38cdcbec-8069-4d09-a216-162e9b82b088" />
 
 #### 🔗 [MemoMiau Live Demo](https://memomiau.netlify.app/)
 

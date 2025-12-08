@@ -1,109 +1,122 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# 🐱 Memomiau
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+Eine moderne Lernkarten-Webanwendung mit AI-Unterstützung – spielerisch lernen mit einer motivierenden Katzen-KI und Community-Features.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+<img width="1240" height="764" alt="memomiau_start" src="https://github.com/user-attachments/assets/13220609-560a-49c1-b82a-691dafbb5c39" />
 
-## Features
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Middleware
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+#### 🔗 [MemoMiau Live Demo](https://memomiau.netlify.app/)
 
-## Demo
+---
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+## 📋 Über das Projekt
 
-## Deploy to Vercel
+Memomiau ist eine Flashcard-Webapp für Desktop und Mobile, die das Lernen mit einem verspielten, katzenthematischen Ansatz neu interpretiert. Mit Unterstützung der sympathischen und motivierenden MemoMiau-KI können Nutzer eigene Lerndecks erstellen, Karten lernen, öffentliche Community-Decks durchsuchen und ihre Fortschritte in einem Achievement-System verfolgen.
 
-Vercel deployment will guide you through creating a Supabase account and project.
+Die Besonderheit: Neben Dark- und Light-Mode gibt es einen besonderen Cat-Mode mit integriertem Minigame – für wahre Katzenliebhaber. Unser Übungsprojekt wurde mit Next.js, TypeScript und Supabase entwickelt und bietet AI-gestützte Kartengenerierung und ein durchdachtes Lernstatus-System mit personalisierten Wiederholungszyklen.
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+---
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+## 🛠️ Technologien
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+- **Next.js** - App Router mit React für moderne SSR/CSR
+- **TypeScript** - Typsichere Entwicklung
+- **Supabase** - Backend as a Service (PostgreSQL + Auth + Storage)
+- **Tailwind CSS** - Utility-First CSS Framework
+- **Lucide React** - Icon-Bibliothek
+- **AI SDK React** - LLM-Integration für Chat und Kartengenerierung
+- **XYFlow React** - Visuelle AI-Workflows
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+---
 
-## Clone and run locally
+## ✨ Features
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+### Lernkarten-System
+- ✅ **Decks erstellen** - Eigene Lerndecks mit Name und Beschreibung
+- ✅ **Flashcards** - Vorder- und Rückseite, optionale Bilder
+- ✅ **Lernstatus-Tracking** - Personalisierte Wiederholungslogik
+- ✅ **AI-Kartengenerierung** - Automatische Erstellung von Karten über KI
+- ✅ **PDF-Import** - Upload von PDFs mit AI-gestützter Flashcard-Extraktion
 
-2. Create a Next.js app using the Supabase Starter template npx command
+### Community & Sharing
+- ✅ **Community-Decks** - Öffentliche Decks durchsuchen und kopieren
+- ✅ **Public/Private Toggle** - Decks öffentlich oder privat teilen
+- ✅ **Deck-Kopieren** - Community-Decks ins eigene Dashboard hinzufügen
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+### Gamification
+- ✅ **Achievement-System** - Tracking von gelernten Karten, Streaks, erstellten Decks
+- ✅ **Cat-Mode** - Beosnderer Modus mit integriertem Minigame
+- ✅ **Cartoon-Avatare** - 8 vorgegebene Katzen-Profilbilder zur Auswahl
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+### AI-Integration
+- ✅ **MemoMiau-KI** - Sympathischer AI-Chatbot als Lernbegleiter
+- ✅ **Multi-Provider-Support** - OpenAI, Anthropic, Google Vertex, Hugging Face, GitHub Copilot
+- ✅ **AI-Chat-UI** - Conversation-Komponenten mit Reasoning und Chain-of-Thought
+- ✅ **Chatbot FAB** - Floating Action Button für schnellen AI-Zugriff
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+### Design & UX
+- ✅ **Dark/Light/Cat-Mode** - Drei Theme-Varianten
+- ✅ **Mobile-First** - Responsive Design für alle Geräte
+- ✅ **Custom UI-Primitives** - Konsistente Design-Komponenten
 
-3. Use `cd` to change into the app's directory
+---
 
-   ```bash
-   cd with-supabase-app
-   ```
+## 📚 Was wir gelernt haben
 
-4. Rename `.env.example` to `.env.local` and update the following:
+- **Next.js App Router**: Moderne File-based Routing mit Server/Client Components
+- **Supabase Integration**: Auth (Email/Password + Google OAuth), PostgreSQL, Storage und Row Level Security
+- **Typisierte Datenbank**: `database.types.ts` für vollständige TypeScript-Typsicherheit bei DB-Calls
+- **AI-Integration**: Multi-Provider LLM-Setup mit Model-Selector und Chat-UI
+- **Variable Fonts**: `font-variation-settings` für präzise Font-Gewichte (z.B. h1 = 800)
+- **Custom CSS Utilities**: `.heading-outline` mit Cross-Browser-Fallbacks
+- **Lernstatus-System**: Personalisierte Card-Wiederholung mit weight-basierter Logik
+- **Realtime-Features**: Quiz-Mode mit Supabase Realtime für Multiplayer-Synchronisation
 
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
+---
 
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+## 📸 Screenshots
 
-5. You can now run the Next.js local development server:
+### Dashboard mit Decks
+<img width="1240" height="721" alt="memomiau_dashboard" src="https://github.com/user-attachments/assets/a3799dbb-4e69-4222-a74c-a42a51c5402e" />
 
-   ```bash
-   npm run dev
-   ```
+### Responsive Design
+<img width="1240" height="764" alt="memomiau_tablet" src="https://github.com/user-attachments/assets/0e7fb861-e1dd-4a5e-98c0-841264d661ff" />
+<img width="1240" height="658" alt="memomiau_mobile" src="https://github.com/user-attachments/assets/e0364b1d-452e-41bf-b9fd-a63414f67c93" />
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+---
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+## 🗄️ Datenbank-Aufbau
+- **Row Level Security (RLS)**: Nutzer sehen nur eigene Decks/Status, öffentliche Decks für alle lesbar
+- **Typisierung**: `database.types.ts` generiert TypeScript-Typen für alle Tabellen
+- **Auth**: Supabase Auth mit Email/Password
+- **Lernstatus**: Separate Tabelle für User-spezifischen Fortschritt
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+---
 
-## Feedback and issues
+## 🤖 AI-Features
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+### Unterstützte Provider
+- OpenAI (GPT-4, GPT-3.5)
+- Anthropic (Claude)
+- Google Vertex AI
+- Hugging Face
+- GitHub Copilot
 
-## More Supabase examples
+### AI-Komponenten
+- **Chatbot Modal**: Floating Action Button + Modal für AI-Chat
+- **Conversation UI**: Message-Komponenten mit Reasoning-Display
+- **AI-Generate**: Automatische Kartenerstellung aus Prompts
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+### API-Routes
+- `/api/chat` - Chat-Requests an LLM-Provider
+- `/api/flashcards` - AI-Kartengenerierung
+- `/api/topics` - Topic-Extraktion für Quiz
+
+---
+
+## 🧩 Mögliche Erweiterungen
+
+- [ ] **PDF-Import** - Upload von PDFs mit AI-gestützter Flashcard-Extraktion
+- [ ] **Quiz-Mode** - Realtime-Multiplayer-Quiz gegen andere Nutzer
+- [ ] **Spaced Repetition Algorithm** - Optimierte Wiederholungszyklen (z.B. SM-2)
+- [ ] **Mobile App** - React Native Version

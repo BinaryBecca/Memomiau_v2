@@ -118,6 +118,7 @@ export const useAuth = () => {
       }
 
       if (data?.user) {
+        router.refresh() // Session neu laden
         router.push('/dashboard')
       }
     } catch (error) {

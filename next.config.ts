@@ -4,7 +4,7 @@ import withBundleAnalyzer from "@next/bundle-analyzer"
 
 const supabaseHost = process.env.NEXT_PUBLIC_SUPABASE_URL
   ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
-  : "cyvhakrxfgqqexdbvhcs.supabase.co"
+  : "ucugkevyqqhpicvqplmj.supabase.co"
 
 const nextConfig: NextConfig = {
   images: {

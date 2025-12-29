@@ -6,7 +6,7 @@
     "analyze": "cross-env ANALYZE=true next build",
     "start": "next start",
     "lint": "eslint .",
-    "gen-types": "supabase gen types typescript --project-id cyvhakrxfgqqexdbvhcs --schema public > ./database.types.ts"
+    "gen-types": "supabase gen types typescript --project-id ucugkevyqqhpicvqplmj --schema public > ./database.types.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.39",

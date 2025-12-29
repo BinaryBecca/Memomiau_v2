@@ -2,13 +2,30 @@
 ALTER TABLE profiles ALTER COLUMN username DROP NOT NULL;
 
 -- Create a function that handles automatic profile creation for new auth users
+-- Extracts metadata from auth.users and populates the profile
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, email, username)
-  VALUES (new.id, new.email, 'user_' || new.id::text)
+  INSERT INTO public.profiles (
+    id, 
+    email, 
+    username, 
+    first_name, 
+    last_name,
+    preset_avatar,
+    avatar_url
+  )
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'username', NULL),
+    COALESCE(NEW.raw_user_meta_data->>'first_name', NULL),
+    COALESCE(NEW.raw_user_meta_data->>'last_name', NULL),
+    COALESCE(NEW.raw_user_meta_data->>'preset_avatar', NULL),
+    COALESCE(NEW.raw_user_meta_data->>'avatar_url', NULL)
+  )
   ON CONFLICT (id) DO NOTHING;
-  RETURN new;
+  RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

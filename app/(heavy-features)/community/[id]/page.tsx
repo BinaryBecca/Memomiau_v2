@@ -158,7 +158,7 @@ export default function CommunityDeckDetailPage() {
 
         {/* Add to Collection Button */}
         {user ? (
-          <Button onClick={handleAddDeck} disabled={isAddingDeck} className="mb-8" size="lg">
+          <Button onClick={handleAddDeck} disabled={isAddingDeck} className="mb-8" size="lg" variant="pink">
             <Download className="w-4 h-4 mr-2" />
             {isAddingDeck ? "Wird hinzugefügt..." : "Zu meiner Sammlung hinzufügen"}
           </Button>

@@ -56,7 +56,7 @@ export const Navbar = () => {
                   priority
                 />
               </div>
-              <span className="font-bold text-lg">MemoMiau</span>
+              <span className="heading font-extrabold text-lg">MemoMiau</span>
             </Link>
           </div>
 
